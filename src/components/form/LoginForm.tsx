@@ -25,6 +25,8 @@ import React from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import { useLogin } from "@/hooks";
 import { useRouter } from "next/navigation";
+import { toast } from "../ui/toast";
+import { Spinner } from "../ui/spinner";
 
 export function LoginForm({
   className,
@@ -35,8 +37,8 @@ export function LoginForm({
   const { mutate: login, isPending: loginPending } = useLogin();
   const form = useForm({
     defaultValues: {
-      email: "",
-      password: "",
+      email: "superadmin@gmail.com",
+      password: "Super@admin1234",
     },
     validators: {
       onSubmit: LoginSchema,
@@ -49,10 +51,19 @@ export function LoginForm({
 
       login(loginData, {
         onSuccess: (res) => {
-          console.log(res);
+          toast.add({
+            title: "Login Successful",
+            description: "Welcome Back",
+            type: "success",
+          });
           router.push("/");
         },
         onError: (err) => {
+          toast.add({
+            title: "Login Failed",
+            description: err.message || "An error occurred",
+            type: "error",
+          });
           console.log(err);
         },
       });
@@ -151,7 +162,16 @@ export function LoginForm({
               </form.Field>
 
               <Field>
-                <Button type="submit">Login</Button>
+                <Button disabled={loginPending} type="submit">
+                  {loginPending ? (
+                    <>
+                      <Spinner />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
+                </Button>
                 <Button variant="outline" type="button">
                   Login with Google
                 </Button>
