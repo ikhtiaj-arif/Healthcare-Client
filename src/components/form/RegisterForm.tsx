@@ -80,7 +80,7 @@ export function RegisterForm({
           const params = new URLSearchParams({
             email: registrationData.email
           })
-          router.push(`/register/verify-account?email=${params.toString()}`);
+          router.push(`/register/verify-account?${params.toString()}`);
         },
         onError: (err) => {
           toast.add({

@@ -45,7 +45,7 @@ export const PatientRegistrationZodSchema = z
 
 //? Either +880, 880, 0
 
-const PatientVerifyEmailZodSchema = z.object({
+export const PatientVerifyEmailZodSchema = z.object({
   email: z.email("Not email!!"),
   otp: z.string().length(6),
 });
