@@ -17,7 +17,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -29,8 +29,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import { isAcceptedFileSize, isAcceptedFileTypes, MAX_FILE_SIZE, MAX_FILE_SIZE_BYTES } from "@/validation";
+import { isAcceptedFileSize, isAcceptedFileTypes, isAcceptedTotalFiles, MAX_ADDITIONAL_FILES, MAX_FILE_SIZE } from "@/validation";
 import { formatFileSize } from "@/utils";
+import type { DoctorApplicationData } from "@/types";
+import { useApplyAsDoctor } from "@/hooks";
+import { useRouter } from "next/navigation";
 
 //* Data signature
 // {
@@ -52,7 +55,8 @@ import { formatFileSize } from "@/utils";
 
 export default function DoctorApplyForm() {
   const router = useRouter();
-  //   const { mutate: apply, isPending: applyPending } = useApplyAsDoctor();
+    const { mutate: apply, isPending: applyPending } = useApplyAsDoctor();
+    const [filesLimitError, setFilesLimitError] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -71,7 +75,40 @@ export default function DoctorApplyForm() {
     },
 
     onSubmit: async ({ value }) => {
-      console.log(value);
+       const doctorData: DoctorApplicationData = {
+        user: {
+          name: value.name.trim(),
+          email: value.email.trim(),
+        },
+        doctor: {
+          specialization: value.specialization.trim(),
+          licenseNumber: value.licenseNumber.trim(),
+          qualifications: value.qualifications.trim(),
+          experienceYears: Number(value.experienceYears),
+          contactNumber: value.phone.trim(),
+          address: value.address.trim(),
+          consultationFee: value.consultationFee.trim()
+            ? Number(value.consultationFee)
+            : undefined,
+          bio: value.bio.trim(),
+        },
+      };
+      apply(
+        {
+          data: doctorData,
+          resume: value.resume as File,
+          additionalFiles: value.additionalFiles,
+        },
+        {
+          onSuccess: (res) => {
+            console.log(res);
+               const params = new URLSearchParams({
+            email: doctorData.user.email
+          })
+          router.push(`/apply/verify-account?${params.toString()}`);
+          },
+        },
+      );
     },
   });
 
@@ -429,7 +466,7 @@ export default function DoctorApplyForm() {
                   <FieldLabel htmlFor="resume-field">Resume</FieldLabel>
                   <div className="flex flex-wrap items-center gap-3">
                     <Button
-                      render={<label htmlFor="resume-field" />}
+                      render={<Label htmlFor="resume-field" />}
                       nativeButton={false}
                       variant="outline"
                     >
@@ -488,15 +525,17 @@ export default function DoctorApplyForm() {
                 field.state.meta.isTouched && !field.state.meta.isValid;
               const files = field.state.value;
               return (
-                <Field data-invalid={isInvalid}>
+                <Field data-invalid={isInvalid || filesLimitError}>
                   <FieldLabel htmlFor="additional-file-field">
-                    Resume
+                    Additional Files
                   </FieldLabel>
                   <div className="flex flex-wrap items-center gap-3">
                     <Button
+                 
                       render={<Label htmlFor="additional-file-field" />}
                       nativeButton={false}
                       variant="outline"
+                      disabled={files.length >= MAX_ADDITIONAL_FILES}
                     >
                       <Plus size="4" />
                       Add Files
@@ -514,24 +553,34 @@ export default function DoctorApplyForm() {
                           return;
                         }
 
-                        // const invalid = incoming.some(
-                        //   (file) =>
-                        //     !isAcceptedFileSize(file.size) ||
-                        //     !isAcceptedFileType(file.type),
-                        // );
+                        const invalid = incoming.some(
+                          (file) =>
+                            !isAcceptedFileSize(file.size) ||
+                            !isAcceptedFileTypes(file.type),
+                        )  ;
 
-                        // if (invalid) {
-                        //   field.handleBlur();
-                        //   e.target.value = "";
-                        //   return;
-                        // }
+                        if (invalid) {
+                          field.handleBlur();
+                          e.target.value = "";
+                          return;
+                        }
 
-                        field.handleChange([...files, ...incoming]);
+                        const nextFiles = [...files, ...incoming];
+
+                        if (!isAcceptedTotalFiles(nextFiles)) {
+                          setFilesLimitError(true);
+                          field.handleBlur();
+                          e.target.value = "";
+                          return;
+                        }
+
+                        setFilesLimitError(false);
+                        field.handleChange(nextFiles);
                       }}
                     />
                     {files.length > 0 && (
                       <span className="text-xs text-muted-foreground">
-                        {/* {files.length} of {MAX_ADDITIONAL_FILES} added */}
+                        {files.length} of {MAX_ADDITIONAL_FILES} added
                       </span>
                     )}
                   </div>
@@ -546,7 +595,7 @@ export default function DoctorApplyForm() {
                             <FileText className="size-4 shrink-0 text-primary" />
                             <span className="truncate">{file.name}</span>
                             <span className="text-xs text-muted-foreground">
-                              {/* {formatFileSize(file.size)} */}
+                              {formatFileSize(file.size)}
                             </span>
                           </span>
                           <button
@@ -556,6 +605,7 @@ export default function DoctorApplyForm() {
                               field.handleChange(
                                 files.filter((_, i) => i !== index),
                               );
+                              setFilesLimitError(false);
                               field.handleBlur();
                             }}
                             className="text-muted-foreground transition-colors hover:text-destructive focus:outline-none"
@@ -566,7 +616,19 @@ export default function DoctorApplyForm() {
                       ))}
                     </ul>
                   )}
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  {(isInvalid || filesLimitError) && (
+                    <FieldError
+                      errors={
+                        filesLimitError
+                          ? [
+                              {
+                                message: `You can add up to ${MAX_ADDITIONAL_FILES} files`,
+                              },
+                            ]
+                          : field.state.meta.errors
+                      }
+                    />
+                  )}
                 </Field>
               );
             }}
