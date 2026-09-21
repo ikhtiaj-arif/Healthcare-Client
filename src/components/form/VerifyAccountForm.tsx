@@ -26,22 +26,28 @@ import {
   InputOTPSlot,
 } from "../ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { useVerifyAccount } from "@/hooks";
+import { useVerifyAccount, useVerifyDoctorAccount } from "@/hooks";
 import { toast } from "../ui/toast";
 
-
-const RESEND_COOLDOWN = 120
+const RESEND_COOLDOWN = 120;
 
 export function VerifyAccountForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+  mode = "patient",
+}: {
+  mode: "doctor" | "patient";
+}) {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
   const [otp, setOtp] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
   const [resendTimer, setResendTimer] = useState(RESEND_COOLDOWN);
-  const { mutate: verify, isPending: verifyPending } = useVerifyAccount();
+  const { mutate: verifyPatient, isPending: verifyPending } =
+    useVerifyAccount();
+  const { mutate: verifyDoctor, isPending: verifyDoctorPending } =
+    useVerifyDoctorAccount();
+
+  const verify = mode === "doctor" ? verifyDoctor : verifyPatient;
+
   const router = useRouter();
 
   useEffect(() => {
@@ -73,13 +79,24 @@ export function VerifyAccountForm({
             type: "error",
           });
         }
-        toast.add({
-          title: "Verification Successful",
-          description: "Welcome to healthcare service",
-          type: "success",
-        });
+        if (mode === "doctor") {
+          toast.add({
+            title: "Verification Successful",
+            description: "Welcome, An admin will approve your account. Please check your email in few days.",
+            type: "success",
+          });
 
-        router.push(`/`);
+          router.push(`/`);
+          return;
+        }
+         toast.add({
+            title: "Verification Successful",
+            description: "Welcome to healthcare service",
+            type: "success",
+          });
+
+          router.push(`/`);
+          
       },
       onError: (err) => {
         toast.add({
@@ -98,7 +115,7 @@ export function VerifyAccountForm({
     return null;
   }
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6")}>
       <Card>
         <CardHeader>
           <CardTitle>Verify your account</CardTitle>
@@ -165,8 +182,10 @@ export function VerifyAccountForm({
             </FieldGroup>
           </form>
           <Field>
-                <FieldDescription>Resend OTP in {resendTimer}</FieldDescription>
-          <Button disabled={resendTimer >0} type="submit">Resend OTP</Button>
+            <FieldDescription>Resend OTP in {resendTimer}</FieldDescription>
+            <Button disabled={resendTimer > 0} type="submit">
+              Resend OTP
+            </Button>
           </Field>
         </CardContent>
       </Card>
