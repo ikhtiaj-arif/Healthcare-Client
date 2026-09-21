@@ -1,27 +1,45 @@
 import z, { file } from "zod";
 
-export const MAX_FILE_SIZE = 6;
-export const MAX_ADDITIONAL_FILES = 5;
-export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE * 1024 * 1024;
+export const MAX_FILE_SIZE = 6
+export const MAX_ADDITIONAL_FILES = 5
+export const MAX_FILE_SIZE_BYTES = (MAX_FILE_SIZE * 1024 )* 1024
 export const ACCEPTED_FILES_TYPES = [
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "image/png",
-  "image/jpeg",
+  "image/jpeg"
 ];
+export const MAX_BIO_LENGTH = 1000;
 
-export function isAcceptedFileSize(fileSize: number) {
-  return fileSize <= MAX_FILE_SIZE_BYTES;
+
+export function isAcceptedFileSize(fileSize:number){
+    return fileSize <= MAX_FILE_SIZE_BYTES
+
 }
-export function isAcceptedTotalFiles(files: File[]) {
-  return files.length <= MAX_ADDITIONAL_FILES;
+export function isAcceptedTotalFiles(files: File[]){
+    return files.length <= MAX_ADDITIONAL_FILES
+
 }
 
-export function isAcceptedFileTypes(fileType: string) {
-  return ACCEPTED_FILES_TYPES.includes(fileType);
+export function isAcceptedFileTypes (fileType:string) {
+    return ACCEPTED_FILES_TYPES.includes(fileType)
 }
 
+ 
+
+ 
+export const getCustomFileSchema = <T>(message: string) =>
+  z.custom<T>(
+    (value) =>
+      value === null ||
+      (value instanceof File &&
+        isAcceptedFileSize(value.size) &&
+        isAcceptedFileTypes(value.type)),
+    {
+      message: message,
+    },
+  );
 export const doctorApplicationSchema = z.object({
   name: z
     .string()
@@ -51,7 +69,29 @@ export const doctorApplicationSchema = z.object({
         message: "Consultation fee must be a non-zero whole number",
       },
     ),
-  bio: z.string(),
+  bio: z
+    .string()
+    .trim()
+    .max(MAX_BIO_LENGTH, `Bio cannot exceed ${MAX_BIO_LENGTH} characters`),
+  resume: getCustomFileSchema<File | null>(
+    `Resume must be a PDF, DOC, DOCX or an image file under ${MAX_FILE_SIZE}MB`,
+  ).refine((value) => value instanceof File, {
+    message: "A resume of cv is required",
+  }),
   additionalFiles: z
-    .array
+    .array(z.custom<File>((value) => value instanceof File))
+    .max(
+      MAX_ADDITIONAL_FILES,
+      `You can attach at most ${MAX_ADDITIONAL_FILES} supporting documents`,
+    )
+    .refine(
+      (files) =>
+        files.every(
+          (file) =>
+            isAcceptedFileSize(file.size) && isAcceptedFileTypes(file.type),
+        ),
+      {
+        message: `Each file must be a PDF, DOC, DOCX or an image file under ${MAX_FILE_SIZE}MB`,
+      },
+    ),
 });
