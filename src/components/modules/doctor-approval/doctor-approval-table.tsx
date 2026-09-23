@@ -2,6 +2,7 @@
 import { Eye, Inbox } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { type DoctorApplication, statusMeta } from "./doctor-approval.data";
 import { DoctorPreviewSheets } from "./doctor-preview-sheets";
+import DoctorApprovalTableLoading from "./doctor-approval-table-loading";
 
 function getInitials(name: string) {
   return name
@@ -35,10 +37,14 @@ function getInitialsClassName(name: string) {
   return variants[code];
 }
 
+ 
+
 export function DoctorApprovalTable({
   applications,
+  isPending = false,
 }: {
   applications: DoctorApplication[];
+  isPending: boolean;
 }) {
   const [selected, setSelected] = useState<DoctorApplication | null>(null);
 
@@ -58,7 +64,9 @@ export function DoctorApprovalTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {applications.length === 0 ? (
+          {isPending ? (
+              <DoctorApprovalTableLoading />
+          ) : applications.length === 0 ? (
             <TableRow>
               <TableCell
                 colSpan={8}
