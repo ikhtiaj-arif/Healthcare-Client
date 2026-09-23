@@ -1,8 +1,9 @@
 "use client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGetAllDoctors } from "@/hooks";
 import {
   type ApplicationStatus,
-  doctorApplications,
+  mapDoctorToApplication,
 } from "./doctor-approval.data";
 import { DoctorApprovalTable } from "./doctor-approval-table";
 
@@ -16,13 +17,16 @@ const tabs: { value: TabValue; label: string; status?: ApplicationStatus }[] = [
 ];
 
 export function DoctorApprovalTabs() {
+  const { data, isPending } = useGetAllDoctors();
+  const applications = (data?.data ?? []).map(mapDoctorToApplication);
+
   return (
     <Tabs defaultValue="PENDING">
       <TabsList variant="line">
         {tabs.map((tab) => {
           const count = tab.status
-            ? doctorApplications.filter((a) => a.status === tab.status).length
-            : doctorApplications.length;
+            ? applications.filter((a) => a.status === tab.status).length
+            : applications.length;
           return (
             <TabsTrigger key={tab.value} value={tab.value}>
               {tab.label}
@@ -34,12 +38,15 @@ export function DoctorApprovalTabs() {
         })}
       </TabsList>
       {tabs.map((tab) => {
-        const applications = tab.status
-          ? doctorApplications.filter((a) => a.status === tab.status)
-          : doctorApplications;
+        const applicationsForTab = tab.status
+          ? applications.filter((a) => a.status === tab.status)
+          : applications;
         return (
           <TabsContent key={tab.value} value={tab.value}>
-            <DoctorApprovalTable applications={applications} />
+            <DoctorApprovalTable
+              applications={applicationsForTab}
+              isPending={isPending}
+            />
           </TabsContent>
         );
       })}

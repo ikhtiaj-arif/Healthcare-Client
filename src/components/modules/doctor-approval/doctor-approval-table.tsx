@@ -2,6 +2,7 @@
 import { Eye, Inbox } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -35,10 +36,24 @@ function getInitialsClassName(name: string) {
   return variants[code];
 }
 
+const skeletonRows = ["row-1", "row-2", "row-3", "row-4", "row-5"];
+const skeletonCells = [
+  "cell-1",
+  "cell-2",
+  "cell-3",
+  "cell-4",
+  "cell-5",
+  "cell-6",
+  "cell-7",
+  "cell-8",
+];
+
 export function DoctorApprovalTable({
   applications,
+  isPending = false,
 }: {
   applications: DoctorApplication[];
+  isPending: boolean;
 }) {
   const [selected, setSelected] = useState<DoctorApplication | null>(null);
 
@@ -58,7 +73,17 @@ export function DoctorApprovalTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {applications.length === 0 ? (
+          {isPending ? (
+            skeletonRows.map((row) => (
+              <TableRow key={row}>
+                {skeletonCells.map((cell) => (
+                  <TableCell key={cell}>
+                    <Skeleton className="h-4 w-24" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : applications.length === 0 ? (
             <TableRow>
               <TableCell
                 colSpan={8}

@@ -1,21 +1,6 @@
 import { ClipboardCheck } from "lucide-react";
-import { doctorApplications } from "@/components/modules/doctor-approval/doctor-approval.data";
+import { DoctorApprovalStats } from "@/components/modules/doctor-approval/doctor-approval-stats";
 import { DoctorApprovalTabs } from "@/components/modules/doctor-approval/doctor-approval-tabs";
-import { Card, CardContent } from "@/components/ui/card";
-
-const counts = {
-  PENDING: doctorApplications.filter((a) => a.status === "PENDING").length,
-  APPROVED: doctorApplications.filter((a) => a.status === "APPROVED").length,
-  REJECTED: doctorApplications.filter((a) => a.status === "REJECTED").length,
-  TOTAL: doctorApplications.length,
-};
-
-const stats = [
-  { label: "Pending", value: counts.PENDING },
-  { label: "Approved", value: counts.APPROVED },
-  { label: "Rejected", value: counts.REJECTED },
-  { label: "Total", value: counts.TOTAL },
-];
 
 const Page = () => {
   return (
@@ -35,20 +20,7 @@ const Page = () => {
         </p>
       </div>
 
-      <div className="grid auto-rows-min gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.label} size="sm">
-            <CardContent className="flex flex-col gap-1.5 py-4">
-              <span className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-                {stat.label}
-              </span>
-              <span className="font-heading text-2xl font-semibold text-foreground">
-                {stat.value}
-              </span>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <DoctorApprovalStats />
 
       <DoctorApprovalTabs />
     </div>

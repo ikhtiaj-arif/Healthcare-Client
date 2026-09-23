@@ -1,6 +1,10 @@
-import { applyDoctor, verifyDoctorAccount } from "@/api/doctor.api";
-import { useMutation } from "@tanstack/react-query";
-import { multipleOf } from "zod";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  applyDoctor,
+  getAllDoctors,
+  verifyDoctorAccount,
+} from "@/api/doctor.api";
+import type { GetAllDoctorsResponse } from "@/types";
 
 export function useApplyAsDoctor() {
   return useMutation({
@@ -11,5 +15,12 @@ export function useApplyAsDoctor() {
 export function useVerifyDoctorAccount() {
   return useMutation({
     mutationFn: verifyDoctorAccount,
+  });
+}
+
+export function useGetAllDoctors() {
+  return useQuery<GetAllDoctorsResponse>({
+    queryKey: ["doctors"],
+    queryFn: getAllDoctors,
   });
 }
