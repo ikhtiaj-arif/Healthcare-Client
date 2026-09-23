@@ -5,7 +5,7 @@ import { useGetAllDoctors } from "@/hooks";
 import { mapDoctorToApplication } from "./doctor-approval.data";
 
 export function DoctorApprovalStats() {
-  const { data, isPending } = useGetAllDoctors();
+  const { data, isPending } = useGetAllDoctors({});
   const applications = (data?.data ?? []).map(mapDoctorToApplication);
 
   const stats = [

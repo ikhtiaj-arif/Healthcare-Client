@@ -23,6 +23,17 @@ export interface DoctorApplicationPayload {
 
 export type DoctorVerificationStatus = "PENDING" | "APPROVED" | "REJECTED";
 
+export type DoctorApprovalStatus = Extract<
+  DoctorVerificationStatus,
+  "APPROVED" | "REJECTED"
+>;
+
+export interface DoctorApprovalPayload {
+  doctorId: string;
+  verificationStatus: DoctorApprovalStatus;
+  rejectionReason?: string;
+}
+
 export interface DoctorAdditionalFile {
   url: string;
   publicId: string;
@@ -81,4 +92,18 @@ export interface PaginationMeta {
 export interface GetAllDoctorsResponse {
   data: Doctor[];
   meta: PaginationMeta;
+}
+export interface DoctorParams {
+  page?: number;
+  limit?: number;
+  verificationStatus?: DoctorVerificationStatus;
+  searchTerm?: string;
+  sortOrder?: "desc" | "asc";
+}
+
+export interface GetAllDoctorsApiResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: GetAllDoctorsResponse;
 }

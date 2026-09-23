@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { type DoctorApplication, statusMeta } from "./doctor-approval.data";
 import { DoctorPreviewSheets } from "./doctor-preview-sheets";
+import DoctorApprovalTableLoading from "./doctor-approval-table-loading";
 
 function getInitials(name: string) {
   return name
@@ -36,17 +37,7 @@ function getInitialsClassName(name: string) {
   return variants[code];
 }
 
-const skeletonRows = ["row-1", "row-2", "row-3", "row-4", "row-5"];
-const skeletonCells = [
-  "cell-1",
-  "cell-2",
-  "cell-3",
-  "cell-4",
-  "cell-5",
-  "cell-6",
-  "cell-7",
-  "cell-8",
-];
+ 
 
 export function DoctorApprovalTable({
   applications,
@@ -74,15 +65,7 @@ export function DoctorApprovalTable({
         </TableHeader>
         <TableBody>
           {isPending ? (
-            skeletonRows.map((row) => (
-              <TableRow key={row}>
-                {skeletonCells.map((cell) => (
-                  <TableCell key={cell}>
-                    <Skeleton className="h-4 w-24" />
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
+              <DoctorApprovalTableLoading />
           ) : applications.length === 0 ? (
             <TableRow>
               <TableCell

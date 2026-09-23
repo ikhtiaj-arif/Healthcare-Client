@@ -1,6 +1,9 @@
 import apiClient from "@/lib/apiClient";
 import type {
   DoctorApplicationPayload,
+  DoctorApprovalPayload,
+  DoctorParams,
+  GetAllDoctorsApiResponse,
   GetAllDoctorsResponse,
   VerifyAccountPayload,
 } from "@/types";
@@ -26,7 +29,21 @@ export function verifyDoctorAccount(payload: VerifyAccountPayload) {
     body: payload,
   });
 }
+export function doctorAccountApprovalRejection(payload: DoctorApprovalPayload) {
+  return apiClient("/doctor/approve-doctor", {
+    method: "POST",
+    body: payload,
+  });
+}
 
-export function getAllDoctors(): Promise<GetAllDoctorsResponse> {
-  return apiClient(`/doctor/all-doctors`);
+export async function getAllDoctors(
+  params: DoctorParams,
+): Promise<GetAllDoctorsResponse> {
+  const response = await apiClient<GetAllDoctorsApiResponse>(
+    `/doctor/all-doctors`,
+    {
+      params,
+    },
+  );
+  return response.data;
 }
