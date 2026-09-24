@@ -126,14 +126,20 @@ export function DoctorApprovalTable({
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelected(application)}
-                    >
-                      <Eye />
-                      Review
-                    </Button>
+                    {application.user.emailVerified ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelected(application)}
+                      >
+                        <Eye />
+                        Review
+                      </Button>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        Email unverified
+                      </span>
+                    )}
                   </TableCell>
                 </TableRow>
               );

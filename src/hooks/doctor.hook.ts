@@ -1,6 +1,7 @@
 import {
   useMutation,
   useQuery,
+  useQueryClient,
   useSuspenseQueries,
   useSuspenseQuery,
 } from "@tanstack/react-query";
@@ -24,8 +25,12 @@ export function useVerifyDoctorAccount() {
   });
 }
 export function useApproveRejectDoctor() {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: doctorAccountApprovalRejection,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['doctors']})
+    }
   });
 }
 
