@@ -16,6 +16,9 @@ export interface DoctorApplication {
   bio: string;
   appliedAt: string;
   status: ApplicationStatus;
+  user: {
+    emailVerified: boolean;
+  };
 }
 
 export const statusMeta: Record<
@@ -54,5 +57,8 @@ export function mapDoctorToApplication(doctor: Doctor): DoctorApplication {
     bio: doctor.bio ?? "Not provided",
     appliedAt: new Date(doctor.createdAt).toISOString().slice(0, 10),
     status: doctor.verificationStatus,
+    user: {
+      emailVerified: doctor.user?.emailVerified ?? false,
+    },
   };
 }

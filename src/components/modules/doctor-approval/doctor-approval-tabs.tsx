@@ -10,6 +10,8 @@ import {
   mapDoctorToApplication,
 } from "./doctor-approval.data";
 import { DoctorApprovalTable } from "./doctor-approval-table";
+import useDebounce from "@/hooks/debounce.hook";
+import TablePagination from "@/components/ui/table-pagination";
 
 type TabValue = "all" | ApplicationStatus;
 
@@ -23,12 +25,14 @@ const tabs: { value: TabValue; label: string; status?: ApplicationStatus }[] = [
 export function DoctorApprovalTabs() {
   const [tab, setTab] = useState<TabValue>("all");
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  // const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 500);
-    return () => clearTimeout(timer);
-  }, [search]);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => setDebouncedSearch(search.trim()), 500);
+  //   return () => clearTimeout(timer);
+  // }, [search]);
+
+  const debouncedSearch =  useDebounce(search)
 
   const params: DoctorParams = debouncedSearch
     ? { searchTerm: debouncedSearch }
@@ -79,6 +83,7 @@ export function DoctorApprovalTabs() {
           );
         })}
       </Tabs>
+      <TablePagination />
     </>
   );
 }
