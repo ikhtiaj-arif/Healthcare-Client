@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "cn";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -19,14 +20,15 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { useVerifyAccount, useVerifyDoctorAccount } from "@/hooks";
+import { getApiErrorMessage } from "@/utils";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
 } from "../ui/input-otp";
-import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { useVerifyAccount, useVerifyDoctorAccount } from "@/hooks";
 import { toast } from "../ui/toast";
 
 const RESEND_COOLDOWN = 120;
@@ -41,12 +43,14 @@ export function VerifyAccountForm({
   const [otp, setOtp] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
   const [resendTimer, setResendTimer] = useState(RESEND_COOLDOWN);
-  const { mutate: verifyPatient, isPending: verifyPending } =
+  const { mutateAsync: verifyPatient, isPending: verifyPatientPending } =
     useVerifyAccount();
-  const { mutate: verifyDoctor, isPending: verifyDoctorPending } =
+  const { mutateAsync: verifyDoctor, isPending: verifyDoctorPending } =
     useVerifyDoctorAccount();
 
   const verify = mode === "doctor" ? verifyDoctor : verifyPatient;
+  const isVerifying =
+    mode === "doctor" ? verifyDoctorPending : verifyPatientPending;
 
   const router = useRouter();
 
@@ -59,7 +63,7 @@ export function VerifyAccountForm({
     return () => clearInterval(timer);
   }, [resendTimer]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (otp.length !== 6) {
       setIsInvalid(true);
@@ -70,44 +74,31 @@ export function VerifyAccountForm({
       otp,
     };
 
-    verify(verifyData, {
-      onSuccess: (res) => {
-        if (!res.success) {
-          toast.add({
-            title: "Server Failed",
-            description: "An error occurred",
-            type: "error",
-          });
-        }
-        if (mode === "doctor") {
-          toast.add({
-            title: "Verification Successful",
-            description: "Welcome, An admin will approve your account. Please check your email in few days.",
-            type: "success",
-          });
+    try {
+      await toast.promise(verify(verifyData), {
+        loading: {
+          title: "Verifying your account",
+        },
+        success: {
+          title: "Verification successful",
+          description:
+            mode === "doctor"
+              ? "Welcome! An admin will review your application. Watch your email for the result."
+              : "Welcome to the healthcare service",
+        },
+        error: (err) => ({
+          title: "Verification failed",
+          description: getApiErrorMessage(
+            err,
+            "That code doesn't look right. Please try again.",
+          ),
+        }),
+      });
 
-          router.push(`/`);
-          return;
-        }
-         toast.add({
-            title: "Verification Successful",
-            description: "Welcome to healthcare service",
-            type: "success",
-          });
-
-          router.push(`/`);
-          
-      },
-      onError: (err) => {
-        toast.add({
-          title: "Verification Failed",
-          description: err.message || "An error occurred",
-          type: "error",
-        });
-        console.log(err);
-      },
-    });
-    console.log(verifyData);
+      router.push("/");
+    } catch {
+      // toast.promise already surfaces the error message.
+    }
   };
 
   if (!email) {
@@ -175,8 +166,20 @@ export function VerifyAccountForm({
                 )}
               </Field>
               <Field>
-                <Button type="submit" form="otp-form">
-                  Verify Account
+                <Button
+                  type="submit"
+                  form="otp-form"
+                  disabled={isVerifying}
+                  aria-busy={isVerifying}
+                >
+                  {isVerifying ? (
+                    <>
+                      <Spinner />
+                      Verifying
+                    </>
+                  ) : (
+                    "Verify Account"
+                  )}
                 </Button>
               </Field>
             </FieldGroup>

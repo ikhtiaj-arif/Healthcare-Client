@@ -1,27 +1,18 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetAllDoctors } from "@/hooks";
-import { mapDoctorToApplication } from "./doctor-approval.data";
+import { useGetDoctorCounts } from "@/hooks";
 
 export function DoctorApprovalStats() {
-  const { data, isPending } = useGetAllDoctors({});
-  const applications = (data?.data ?? []).map(mapDoctorToApplication);
+  const { data, isPending } = useGetDoctorCounts();
+
+  const counts = data?.byStatus;
 
   const stats = [
-    {
-      label: "Pending",
-      value: applications.filter((a) => a.status === "PENDING").length,
-    },
-    {
-      label: "Approved",
-      value: applications.filter((a) => a.status === "APPROVED").length,
-    },
-    {
-      label: "Rejected",
-      value: applications.filter((a) => a.status === "REJECTED").length,
-    },
-    { label: "Total", value: applications.length },
+    { label: "Pending", value: counts?.PENDING ?? 0 },
+    { label: "Approved", value: counts?.APPROVED ?? 0 },
+    { label: "Rejected", value: counts?.REJECTED ?? 0 },
+    { label: "Total", value: data?.total ?? 0 },
   ];
 
   return (
