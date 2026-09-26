@@ -2,8 +2,9 @@
 
 import { useForm } from "@tanstack/react-form";
 import { cn } from "cn";
-import { Contact, Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeClosed } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 import type z from "zod";
 import { Button } from "@/components/ui/button";
@@ -22,11 +23,12 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { PatientRegistrationZodSchema } from "@/validation";
-import { GoogleLoginButton } from "./GoogleLogin";
+import { Spinner } from "@/components/ui/spinner";
 import { useRegistration } from "@/hooks";
+import { getApiErrorMessage } from "@/utils";
+import { PatientRegistrationZodSchema } from "@/validation";
 import { toast } from "../ui/toast";
-import { useRouter } from "next/navigation";
+import { GoogleLoginButton } from "./GoogleLogin";
 
 export function RegisterForm({
   className,
@@ -34,7 +36,7 @@ export function RegisterForm({
 }: React.ComponentProps<"div">) {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-  const { mutate: registration, isPending: registrationPending } =
+  const { mutateAsync: registration, isPending: registrationPending } =
     useRegistration();
   const router = useRouter();
 
@@ -53,7 +55,7 @@ export function RegisterForm({
     validators: {
       onSubmit: PatientRegistrationZodSchema,
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       const registrationData = {
         name: value.name,
         email: value.email,
@@ -63,34 +65,32 @@ export function RegisterForm({
         },
       };
 
-      registration(registrationData, {
-        onSuccess: (res) => {
-          if(!res.success){
-             toast.add({
-            title: "Server Failed",
-            description:  "An error occurred",
-            type: "error",
-          });
-          }
-          toast.add({
-            title: "Registration Successful",
+      try {
+        await toast.promise(registration(registrationData), {
+          loading: {
+            title: "Creating your account",
+            description: "This will only take a moment.",
+          },
+          success: {
+            title: "Registration successful",
             description: "Please verify your account",
-            type: "success",
-          });
-          const params = new URLSearchParams({
-            email: registrationData.email
-          })
-          router.push(`/register/verify-account?${params.toString()}`);
-        },
-        onError: (err) => {
-          toast.add({
-            title: "Authorization Failed",
-            description: err.message || "An error occurred",
-            type: "error",
-          });
-          console.log(err);
-        },
-      });
+          },
+          error: (err) => ({
+            title: "Registration failed",
+            description: getApiErrorMessage(
+              err,
+              "We couldn't create your account. Please try again.",
+            ),
+          }),
+        });
+
+        const params = new URLSearchParams({
+          email: registrationData.email,
+        });
+        router.push(`/register/verify-account?${params.toString()}`);
+      } catch {
+        // toast.promise already surfaces the error message.
+      }
     },
   });
 
@@ -272,7 +272,20 @@ export function RegisterForm({
               </form.Field>
 
               <Field>
-                <Button type="submit">Register</Button>
+                <Button
+                  type="submit"
+                  disabled={registrationPending}
+                  aria-busy={registrationPending}
+                >
+                  {registrationPending ? (
+                    <>
+                      <Spinner />
+                      Registering
+                    </>
+                  ) : (
+                    "Register"
+                  )}
+                </Button>
 
                 <FieldDescription className="text-center">
                   Already have an account? <Link href="/login">Login</Link>

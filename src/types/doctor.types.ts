@@ -8,8 +8,8 @@ export interface DoctorApplicationData {
     licenseNumber: string;
     qualifications: string;
     experienceYears: number;
-    contactNumber: string;
-    address: string;
+    contactNumber: string | undefined;
+    address: string | undefined;
     consultationFee: number | undefined;
     bio: string;
   };

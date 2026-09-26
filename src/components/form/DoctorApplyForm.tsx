@@ -17,7 +17,9 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -27,13 +29,21 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { toast } from "@/components/ui/toast";
+import { useApplyAsDoctor } from "@/hooks";
+import type { DoctorApplicationData } from "@/types";
+import { formatFileSize, getApiErrorMessage } from "@/utils";
+import {
+  doctorApplicationSchema,
+  isAcceptedFileSize,
+  isAcceptedFileTypes,
+  isAcceptedTotalFiles,
+  MAX_ADDITIONAL_FILES,
+  MAX_FILE_SIZE,
+} from "@/validation";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import { isAcceptedFileSize, isAcceptedFileTypes, isAcceptedTotalFiles, MAX_ADDITIONAL_FILES, MAX_FILE_SIZE } from "@/validation";
-import { formatFileSize } from "@/utils";
-import type { DoctorApplicationData } from "@/types";
-import { useApplyAsDoctor } from "@/hooks";
-import { useRouter } from "next/navigation";
 
 //* Data signature
 // {
@@ -53,29 +63,37 @@ import { useRouter } from "next/navigation";
 //   }
 // }
 
+type DoctorApplicationFormValues = z.input<typeof doctorApplicationSchema>;
+
+const defaultValues: DoctorApplicationFormValues = {
+  name: "",
+  email: "",
+  phone: "",
+  address: "",
+  specialization: "",
+  licenseNumber: "",
+  qualifications: "",
+  experienceYears: "",
+  consultationFee: "",
+  bio: "",
+  resume: null,
+  additionalFiles: [],
+};
+
 export default function DoctorApplyForm() {
   const router = useRouter();
-    const { mutate: apply, isPending: applyPending } = useApplyAsDoctor();
-    const [filesLimitError, setFilesLimitError] = useState(false);
+  const { mutateAsync: apply } = useApplyAsDoctor();
+  const [filesLimitError, setFilesLimitError] = useState(false);
 
   const form = useForm({
-    defaultValues: {
-      name: "Mir Hussain",
-      email: "drmir@gmail.com",
-      phone: "01912345678",
-      address: "Neptune",
-      specialization: "Cardiologist",
-      licenseNumber: "ABC123",
-      qualifications: "MBBS",
-      experienceYears: "50",
-      consultationFee: "10000",
-      bio: "My life, my rules.",
-      resume: null as File | null,
-      additionalFiles: [] as File[],
+    defaultValues,
+    validators: {
+      onSubmit: doctorApplicationSchema,
     },
-
     onSubmit: async ({ value }) => {
-       const doctorData: DoctorApplicationData = {
+      // The API rejects an empty string for the optional fields rather than
+      // treating it as absent, so blank values are sent as undefined instead.
+      const doctorData: DoctorApplicationData = {
         user: {
           name: value.name.trim(),
           email: value.email.trim(),
@@ -85,30 +103,47 @@ export default function DoctorApplyForm() {
           licenseNumber: value.licenseNumber.trim(),
           qualifications: value.qualifications.trim(),
           experienceYears: Number(value.experienceYears),
-          contactNumber: value.phone.trim(),
-          address: value.address.trim(),
+          contactNumber: value.phone.trim() || undefined,
+          address: value.address.trim() || undefined,
           consultationFee: value.consultationFee.trim()
             ? Number(value.consultationFee)
             : undefined,
           bio: value.bio.trim(),
         },
       };
-      apply(
-        {
-          data: doctorData,
-          resume: value.resume as File,
-          additionalFiles: value.additionalFiles,
-        },
-        {
-          onSuccess: (res) => {
-            console.log(res);
-               const params = new URLSearchParams({
-            email: doctorData.user.email
-          })
-          router.push(`/apply/verify-account?${params.toString()}`);
+
+      try {
+        await toast.promise(
+          apply({
+            data: doctorData,
+            resume: value.resume as File,
+            additionalFiles: value.additionalFiles,
+          }),
+          {
+            loading: {
+              title: "Submitting your application",
+              description: "Uploading your documents, this can take a moment.",
+            },
+            success: {
+              title: "Application submitted",
+              description:
+                "We sent a 6-digit code to your email to verify your account.",
+            },
+            error: (err) => ({
+              title: "Submission failed",
+              description: getApiErrorMessage(
+                err,
+                "We couldn't submit your application. Please try again.",
+              ),
+            }),
           },
-        },
-      );
+        );
+
+        const params = new URLSearchParams({ email: doctorData.user.email });
+        router.push(`/apply/verify-account?${params.toString()}`);
+      } catch {
+        // toast.promise already surfaces the error message.
+      }
     },
   });
 
@@ -118,6 +153,10 @@ export default function DoctorApplyForm() {
         <h1 className="text-2xl font-bold tracking-tight">
           Apply to join PH Healthcare
         </h1>
+        <p className="text-sm text-muted-foreground">
+          Tell us about your practice. We&apos;ll email you a 6-digit code to
+          verify your account.
+        </p>
       </div>
 
       <form
@@ -196,7 +235,12 @@ export default function DoctorApplyForm() {
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Contact number</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>
+                      Contact number{" "}
+                      <span className="font-normal text-muted-foreground">
+                        (optional)
+                      </span>
+                    </FieldLabel>
                     <div className="relative">
                       <Phone className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
@@ -362,7 +406,7 @@ export default function DoctorApplyForm() {
                         name={field.name}
                         type="number"
                         min={0}
-                        max={70}
+                        max={60}
                         inputMode="numeric"
                         placeholder="10"
                         value={field.state.value}
@@ -480,7 +524,11 @@ export default function DoctorApplyForm() {
                       name={field.name}
                       onChange={(e) => {
                         const selected = e.target?.files?.[0] ?? null;
-                        if (selected && (!isAcceptedFileSize(selected?.size) || !isAcceptedFileTypes(selected.type))) {
+                        if (
+                          selected &&
+                          (!isAcceptedFileSize(selected?.size) ||
+                            !isAcceptedFileTypes(selected.type))
+                        ) {
                           field.handleBlur();
                           return;
                         }
@@ -531,7 +579,6 @@ export default function DoctorApplyForm() {
                   </FieldLabel>
                   <div className="flex flex-wrap items-center gap-3">
                     <Button
-                 
                       render={<Label htmlFor="additional-file-field" />}
                       nativeButton={false}
                       variant="outline"
@@ -557,7 +604,7 @@ export default function DoctorApplyForm() {
                           (file) =>
                             !isAcceptedFileSize(file.size) ||
                             !isAcceptedFileTypes(file.type),
-                        )  ;
+                        );
 
                         if (invalid) {
                           field.handleBlur();
@@ -635,8 +682,20 @@ export default function DoctorApplyForm() {
           </form.Field>
         </FieldGroup>
         <div className="flex justify-end w-full mt-5">
-          <Button type="submit" size="lg">
-            Submit
+          <Button
+            type="submit"
+            size="lg"
+            disabled={form.state.isSubmitting}
+            aria-busy={form.state.isSubmitting}
+          >
+            {form.state.isSubmitting ? (
+              <>
+                <Spinner />
+                Submitting
+              </>
+            ) : (
+              "Submit application"
+            )}
           </Button>
         </div>
       </form>
