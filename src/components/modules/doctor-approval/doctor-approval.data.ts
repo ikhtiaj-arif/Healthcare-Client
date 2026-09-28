@@ -1,25 +1,10 @@
-import type { Doctor } from "@/types";
+import type {
+  ApplicationStatus,
+  Doctor,
+  DoctorApplication,
+} from "@/types";
 
-export type ApplicationStatus = "PENDING" | "APPROVED" | "REJECTED";
-
-export interface DoctorApplication {
-  id: string;
-  name: string;
-  email: string;
-  specialization: string;
-  licenseNumber: string;
-  qualifications: string;
-  experienceYears: number;
-  contactNumber: string;
-  address: string;
-  consultationFee: number | undefined;
-  bio: string;
-  appliedAt: string;
-  status: ApplicationStatus;
-  user: {
-    emailVerified: boolean;
-  };
-}
+export type { ApplicationStatus, DoctorApplication } from "@/types";
 
 export const statusMeta: Record<
   ApplicationStatus,
@@ -39,7 +24,7 @@ export const statusMeta: Record<
   },
 };
 
-export function mapDoctorToApplication(doctor: Doctor): DoctorApplication {
+export function mapDoctorToApplication(doctor: Doctor) {
   return {
     id: doctor.id,
     name: doctor.name,
@@ -60,5 +45,5 @@ export function mapDoctorToApplication(doctor: Doctor): DoctorApplication {
     user: {
       emailVerified: doctor.user?.emailVerified ?? false,
     },
-  };
+  } satisfies DoctorApplication;
 }

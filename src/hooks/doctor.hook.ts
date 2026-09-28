@@ -72,7 +72,7 @@ export function useGetDoctorCounts() {
 
 export function useSuspenseGetAllDoctors(params: DoctorParams) {
   return useSuspenseQuery({
-    queryKey: ["doctors"],
+    queryKey: ["doctors", params],
     queryFn: () => getAllDoctors(params),
   });
 }
