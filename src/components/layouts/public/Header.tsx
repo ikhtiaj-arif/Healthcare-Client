@@ -26,7 +26,7 @@ const Header = () => {
   const { mutate: logout } = useLogout();
   const queryClient = useQueryClient();
 
-  const role: UserRole = !!data?.data && data?.data?.role;
+  const role: UserRole | undefined = data?.data?.role;
 
   const handleLogout = () => {
     logout(undefined, {

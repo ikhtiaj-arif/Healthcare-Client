@@ -38,13 +38,17 @@ function formatDateTime(value: string) {
 }
 
 export default function ScheduleTable({ schedules }: Props) {
-  const { mutate: publish, isPending: isPublishing } = usePublishSchedule();
-  const { mutate: remove, isPending: isDeleting } = useDeleteSchedule();
+  const { mutate: publish } = usePublishSchedule();
+  const { mutate: remove } = useDeleteSchedule();
 
   const [viewing, setViewing] = useState<Schedule | null>(null);
   const [deleting, setDeleting] = useState<Schedule | null>(null);
+  // Tracked per row so one schedule's action doesn't disable every other row.
+  const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handlePublish = (schedule: Schedule) => {
+    setPublishingId(schedule.id);
     publish(schedule.id, {
       onSuccess: () => {
         toast.add({
@@ -63,12 +67,14 @@ export default function ScheduleTable({ schedules }: Props) {
           type: "error",
         });
       },
+      onSettled: () => setPublishingId(null),
     });
   };
 
   const confirmDelete = () => {
     if (!deleting) return;
 
+    setDeletingId(deleting.id);
     remove(deleting.id, {
       onSuccess: () => {
         toast.add({
@@ -88,6 +94,7 @@ export default function ScheduleTable({ schedules }: Props) {
           type: "error",
         });
       },
+      onSettled: () => setDeletingId(null),
     });
   };
 
@@ -150,7 +157,8 @@ export default function ScheduleTable({ schedules }: Props) {
                     {schedule.status === "DRAFT" && (
                       <Button
                         size="sm"
-                        disabled={isPublishing}
+                        disabled={publishingId === schedule.id}
+                        aria-busy={publishingId === schedule.id}
                         onClick={() => handlePublish(schedule)}
                       >
                         Publish
@@ -198,16 +206,16 @@ export default function ScheduleTable({ schedules }: Props) {
 
           <DialogFooter>
             <DialogClose
-              render={<Button variant="outline" disabled={isDeleting} />}
+              render={<Button variant="outline" disabled={deletingId !== null} />}
             >
               Cancel
             </DialogClose>
             <Button
               variant="destructive"
               onClick={confirmDelete}
-              disabled={isDeleting}
+              disabled={deletingId !== null}
             >
-              {isDeleting && <Spinner />}
+              {deletingId !== null && <Spinner />}
               Delete
             </Button>
           </DialogFooter>

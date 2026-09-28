@@ -1,7 +1,9 @@
 import apiClient from "@/lib/apiClient";
-import {
+import type {
+  ApiResponse,
   LoginPayload,
   RegistrationPayload,
+  User,
   VerifyAccountPayload,
 } from "@/types";
 
@@ -19,5 +21,5 @@ export function userLogout() {
 }
 
 export function getMe() {
-  return apiClient("/auth/me", { method: "GET" });
+  return apiClient<ApiResponse<User>>("/auth/me", { method: "GET" });
 }
