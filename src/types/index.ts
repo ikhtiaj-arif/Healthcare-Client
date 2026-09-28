@@ -1,3 +1,7 @@
+export * from "./api-response.type"
 export * from "./auth.type"
 export * from "./doctor.types"
+export * from "./doctor-approval.types"
 export * from "./user.type"
+export * from "./schedule.types"
+export * from "./sidebar.type"

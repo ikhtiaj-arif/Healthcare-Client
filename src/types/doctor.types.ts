@@ -1,3 +1,5 @@
+import type { PaginatedData } from "./api-response.type";
+
 export interface DoctorApplicationData {
   user: {
     name: string;
@@ -82,28 +84,12 @@ export interface Doctor {
   };
 }
 
-export interface PaginationMeta {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
+export type GetAllDoctorsResponse = PaginatedData<Doctor>;
 
-export interface GetAllDoctorsResponse {
-  data: Doctor[];
-  meta: PaginationMeta;
-}
 export interface DoctorParams {
   page?: number;
   limit?: number;
   verificationStatus?: DoctorVerificationStatus;
   searchTerm?: string;
   sortOrder?: "desc" | "asc";
-}
-
-export interface GetAllDoctorsApiResponse {
-  success: boolean;
-  statusCode: number;
-  message: string;
-  data: GetAllDoctorsResponse;
 }
