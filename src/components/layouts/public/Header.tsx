@@ -11,6 +11,7 @@ import React from "react";
 const Header = () => {
   const routes = [
     { name: "Home", path: "/" },
+    { name: "Doctors", path: "/doctors" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
   ];

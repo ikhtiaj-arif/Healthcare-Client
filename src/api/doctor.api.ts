@@ -6,6 +6,8 @@ import type {
   DoctorApprovalPayload,
   DoctorParams,
   PaginatedData,
+  PublicDoctorParams,
+  PublicDoctorProfile,
   VerifyAccountPayload,
 } from "@/types";
 
@@ -53,4 +55,20 @@ export async function getAllDoctors(
     },
   );
   return response.data;
+}
+
+
+export function getAllPublicDoctors(params: PublicDoctorParams) {
+  return apiClient<ApiResponse<PublicDoctorProfile[]>>(
+    "/doctor/public/all-doctors",
+    {
+      params,
+    },
+  );
+}
+
+export function getPublicDoctorProfile(doctorId: string) {
+  return apiClient<ApiResponse<PublicDoctorProfile>>(
+    `/doctor/public/${doctorId}`,
+  );
 }
