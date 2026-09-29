@@ -11,6 +11,7 @@ import React from "react";
 const Header = () => {
   const routes = [
     { name: "Home", path: "/" },
+    { name: "Doctors", path: "/doctors" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
   ];
@@ -26,7 +27,7 @@ const Header = () => {
   const { mutate: logout } = useLogout();
   const queryClient = useQueryClient();
 
-  const role: UserRole = !!data?.data && data?.data?.role;
+  const role: UserRole | undefined = data?.data?.role;
 
   const handleLogout = () => {
     logout(undefined, {

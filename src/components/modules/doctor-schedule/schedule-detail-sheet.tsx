@@ -20,6 +20,8 @@ export default function ScheduleDetailSheet({
   open,
   onClose,
 }: Props) {
+  const appointments = schedule.appointments ?? [];
+
   return (
     <Sheet open={open} onOpenChange={(next) => !next && onClose()}>
       <SheetContent side="right">
@@ -73,6 +75,53 @@ export default function ScheduleDetailSheet({
             </dd>
           </div>
         </dl>
+
+        <div className="mt-6">
+          <h3 className="text-sm font-medium">Booked patients</h3>
+          {appointments.length === 0 ? (
+            <p className="mt-2 text-sm text-muted-foreground">
+              No one has booked a slot on this schedule yet.
+            </p>
+          ) : (
+            <ul className="mt-2 flex flex-col gap-3">
+              {appointments.map((appointment) => (
+                <li
+                  key={appointment.id}
+                  className="flex items-start justify-between gap-4 text-sm"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate font-medium">
+                      {appointment.patient.name}
+                    </div>
+                    <div className="truncate text-muted-foreground">
+                      {appointment.patient.email}
+                    </div>
+                    {appointment.patient.contactNumber && (
+                      <div className="text-muted-foreground">
+                        {appointment.patient.contactNumber}
+                      </div>
+                    )}
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="text-muted-foreground">
+                      {appointment.serialNumber !== null &&
+                        `#${appointment.serialNumber} · `}
+                      {appointment.status}
+                    </div>
+                    {appointment.joiningTime && (
+                      <div className="text-muted-foreground">
+                        {new Date(appointment.joiningTime).toLocaleTimeString(
+                          undefined,
+                          { timeStyle: "short" },
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </SheetContent>
     </Sheet>
   );

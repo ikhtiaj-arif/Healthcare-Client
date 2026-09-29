@@ -8,9 +8,11 @@ import {
   applyDoctor,
   doctorAccountApprovalRejection,
   getAllDoctors,
+  getAllPublicDoctors,
+  getPublicDoctorProfile,
   verifyDoctorAccount,
 } from "@/api/doctor.api";
-import type { DoctorParams, DoctorVerificationStatus } from "@/types";
+import type { DoctorParams, DoctorVerificationStatus, PublicDoctorParams } from "@/types";
 
 export function useApplyAsDoctor() {
   return useMutation({
@@ -32,7 +34,7 @@ export function useApproveRejectDoctor() {
     },
   });
 }
-
+// admin only
 export function useGetAllDoctors(params: DoctorParams) {
   return useQuery({
     queryKey: ["doctors", params],
@@ -67,6 +69,28 @@ export function useGetDoctorCounts() {
         ) as Record<DoctorVerificationStatus, number>,
       };
     },
+  });
+}
+
+export function useGetAllPublicDoctors(params: PublicDoctorParams) {
+  return useQuery({
+    queryKey: ["doctor", "public", params],
+    queryFn: () => getAllPublicDoctors(params),
+  });
+}
+
+export function useSuspenseGetPublicDoctors(params: PublicDoctorParams) {
+  return useSuspenseQuery({
+    queryKey: ["doctors", "public", params],
+    queryFn: () => getAllPublicDoctors(params),
+  });
+}
+
+export function usePublicDoctorProfile(doctorId: string) {
+  return useQuery({
+    queryKey: ["doctor", "public", doctorId],
+    queryFn: () => getPublicDoctorProfile(doctorId),
+    enabled: !!doctorId,
   });
 }
 

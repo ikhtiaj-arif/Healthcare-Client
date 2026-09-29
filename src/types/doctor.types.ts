@@ -93,3 +93,24 @@ export interface DoctorParams {
   searchTerm?: string;
   sortOrder?: "desc" | "asc";
 }
+
+export interface PublicDoctorProfile {
+  id: string;
+  name: string;
+  specialization: string;
+  licenseNumber: string;
+  qualifications: string;
+  experienceYears: number;
+  bio?: string | null;
+  consultationFee?: number | string | null;
+  createdAt: string;
+}
+
+export interface PublicDoctorParams {
+  page?: number;
+  limit?: number;
+  searchTerm?: string;
+  specialization?: string;
+  sortBy?: string;
+  sortOrder?: "desc" | "asc";
+}

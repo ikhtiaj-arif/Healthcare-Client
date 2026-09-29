@@ -1,9 +1,9 @@
 "use client";
 
-import { type Dispatch, type SetStateAction, Suspense, useState } from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 import TablePagination from "@/components/ui/table-pagination";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useSuspenseMySchedules } from "@/hooks";
+import { useMySchedules } from "@/hooks";
 import type { ScheduleParams, ScheduleStatus } from "@/types";
 import ScheduleCreateDialog from "./schedule-create-dialog";
 import ScheduleListLoading from "./schedule-list-loading";
@@ -19,8 +19,6 @@ const statuses: { value: TabValue; label: string }[] = [
   { value: "PUBLISHED", label: "Published" },
 ];
 
-// Rendered inside the Suspense boundary below so the page count and the table
-// always describe the same query result.
 function ScheduleResults({
   params,
   page,
@@ -30,7 +28,13 @@ function ScheduleResults({
   page: number;
   setPage: Dispatch<SetStateAction<number>>;
 }) {
-  const { data } = useSuspenseMySchedules(params);
+  const { data, isPending } = useMySchedules(params);
+
+  // Only the first load has no data. Later page and tab changes are served from
+  // `keepPreviousData`, so they render straight away instead of blanking out.
+  if (isPending || !data) {
+    return <ScheduleListLoading />;
+  }
 
   return (
     <>
@@ -77,9 +81,7 @@ export default function ScheduleList() {
         <ScheduleCreateDialog />
       </div>
 
-      <Suspense fallback={<ScheduleListLoading />}>
-        <ScheduleResults params={queryParams} page={page} setPage={setPage} />
-      </Suspense>
+      <ScheduleResults params={queryParams} page={page} setPage={setPage} />
     </>
   );
 }

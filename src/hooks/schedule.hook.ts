@@ -1,11 +1,16 @@
 import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
   createSchedule,
   deleteSchedule,
   getMySchedules,
   publishSchedule,
 } from "@/api";
 import type { ScheduleParams } from "@/types";
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 export const SCHEDULES_QUERY_KEY = ["schedules"] as const;
 
@@ -44,9 +49,13 @@ export function useDeleteSchedule() {
   });
 }
 
-export function useSuspenseMySchedules(params: ScheduleParams) {
-  return useSuspenseQuery({
+export function useMySchedules(params: ScheduleParams) {
+  return useQuery({
     queryKey: [...SCHEDULES_QUERY_KEY, params],
     queryFn: () => getMySchedules(params),
+    // `useSuspenseQuery` omits `placeholderData` from its options, so keeping
+    // the current page on screen across a page or tab change means using
+    // `useQuery`. Without it every interaction drops the table to its skeleton.
+    placeholderData: keepPreviousData,
   });
 }
