@@ -10,6 +10,7 @@ import {
   getAllDoctors,
   getAllPublicDoctors,
   getPublicDoctorProfile,
+  getTodayScheduleByDoctor,
   verifyDoctorAccount,
 } from "@/api/doctor.api";
 import type { DoctorParams, DoctorVerificationStatus, PublicDoctorParams } from "@/types";
@@ -98,5 +99,17 @@ export function useSuspenseGetAllDoctors(params: DoctorParams) {
   return useSuspenseQuery({
     queryKey: ["doctors", params],
     queryFn: () => getAllDoctors(params),
+  });
+}
+
+
+export function useGetTodayScheduleByDoctor(params: {
+  doctorId?: string;
+  page?: number;
+  limit?: number;
+}) {
+  return useQuery({
+    queryKey: ["schedule", params],
+    queryFn: () => getTodayScheduleByDoctor(params),
   });
 }

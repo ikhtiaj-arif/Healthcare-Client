@@ -1,4 +1,5 @@
 import { getAllPublicDoctors, getPublicDoctorProfile } from "@/api";
+import DoctorBooking from "@/components/modules/doctors/doctor-bookings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, BriefcaseBusiness, GraduationCap, ScrollText, Stethoscope, Wallet } from "lucide-react";
@@ -83,7 +84,7 @@ const page = async({ params }: { params: Promise<{ id: string }> }) => {
             Today&apos;s available slots. Booking redirects to bKash payment.
           </p>
         </div>
-        {/* <DoctorBooking doctorId={doctor.id} /> */}
+        <DoctorBooking doctorId={doctor.id} />
       </div>
     </div>
 };
