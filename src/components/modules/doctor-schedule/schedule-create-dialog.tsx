@@ -17,9 +17,11 @@ export default function ScheduleCreateDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="lg" />}>Create Schedule</DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
+      <DialogTrigger render={<Button size="lg" />}>
+        Create Schedule
+      </DialogTrigger>
+      <DialogContent className="gap-0 overflow-hidden">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Create Schedule</DialogTitle>
           <DialogDescription>
             This schedule will be visible to patients once published.
