@@ -5,6 +5,7 @@ import type {
   DoctorApplicationPayload,
   DoctorApprovalPayload,
   DoctorParams,
+  PaginatedApiResponse,
   PaginatedData,
   PublicDoctorParams,
   PublicDoctorProfile,
@@ -49,13 +50,13 @@ export async function doctorAccountApprovalRejection(
 export async function getAllDoctors(
   params: DoctorParams,
 ): Promise<PaginatedData<Doctor>> {
-  const response = await apiClient<ApiResponse<PaginatedData<Doctor>>>(
+  const response = await apiClient<PaginatedApiResponse<Doctor>>(
     `/doctor/all-doctors`,
     {
       params,
     },
   );
-  return response.data;
+  return { data: response.data, meta: response.meta };
 }
 
 
