@@ -34,7 +34,11 @@ const DoctorBooking = ({ doctorId }: { doctorId: string }) => {
 
   const handleBooking = (schedule: Schedule) => {
     if (!mePending && !me?.data) {
-      router.push("/login");
+      // Keep where they were headed in the query string so LoginForm can send
+      // them back to this doctor after authenticating, instead of dropping
+      // them on the homepage with the slot they picked lost.
+      const backTo = `/doctors/${doctorId}`;
+      router.push(`/login?redirect=${encodeURIComponent(backTo)}`);
       return;
     }
 

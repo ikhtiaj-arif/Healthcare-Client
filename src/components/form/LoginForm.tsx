@@ -24,10 +24,27 @@ import { LoginSchema } from "@/validation";
 import React from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import { useLogin } from "@/hooks";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "../ui/toast";
 import { Spinner } from "../ui/spinner";
 import { GoogleLoginButton } from "./GoogleLogin";
+
+/**
+ * Reads `?redirect=` and returns a destination that is safe to navigate to.
+ *
+ * Only same-origin absolute paths are accepted. Without this check the param
+ * would be an open redirect: /login?redirect=https://evil.example would send a
+ * freshly authenticated user off-site.
+ */
+function useSafeRedirectParam(fallback: string) {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
+
+  if (!redirect) return fallback;
+  if (!redirect.startsWith("/") || redirect.startsWith("//")) return fallback;
+
+  return redirect;
+}
 
 export function LoginForm({
   className,
@@ -35,6 +52,7 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const [showPassword, setShowPassword] = React.useState(false);
   const router = useRouter();
+  const redirectTo = useSafeRedirectParam("/");
   const { mutate: login, isPending: loginPending } = useLogin();
   const form = useForm({
     defaultValues: {
@@ -57,7 +75,7 @@ export function LoginForm({
             description: "Welcome Back",
             type: "success",
           });
-          router.push("/");
+          router.push(redirectTo);
         },
         onError: (err) => {
           toast.add({
