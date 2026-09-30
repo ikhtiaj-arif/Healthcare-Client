@@ -107,7 +107,11 @@ export function DataTableToolbar<T extends string>({
               key={filter.id}
               value={filter.value ?? "__all__"}
               onValueChange={(value) =>
-                filter.onChange(value === "__all__" ? undefined : value)
+                // Base UI reports null when the popup closes without a pick, and
+                // "__all__" is this component's sentinel for "no filter".
+                filter.onChange(
+                  value === "__all__" ? undefined : (value ?? undefined),
+                )
               }
             >
               <SelectTrigger
