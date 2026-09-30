@@ -5,16 +5,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, BriefcaseBusiness, GraduationCap, ScrollText, Stethoscope, Wallet } from "lucide-react";
 import Link from "next/link";
 
+/**
+ * Page size for the build-time crawl. This used to be 1, which made the loop
+ * below issue one HTTP request per doctor instead of per batch.
+ */
+const CRAWL_PAGE_SIZE = 100;
+
 export async function generateStaticParams() {
-  const limit = 1;
-  const first = await getAllPublicDoctors({ page: 1, limit });
+  // `output: "export"` means this is the only thing that decides which /doctors
+  // pages exist. An empty array is a *valid* return, so an API that is down or
+  // unreachable used to produce a successful build that shipped zero doctor
+  // pages -- every /doctors link then 404'd in production with nothing logged.
+  // Fail the build instead, so a broken backend can't be deployed silently.
+  const first = await getAllPublicDoctors({
+    page: 1,
+    limit: CRAWL_PAGE_SIZE,
+  }).catch((error: unknown) => {
+    throw new Error(
+      "generateStaticParams could not reach the doctor API. " +
+        "Is the backend running and is NEXT_PUBLIC_API_BASE_URL correct? " +
+        `Underlying error: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  });
 
   const totalPages = first?.meta?.totalPages ?? 1;
 
   const all = [...first.data];
 
   for (let page = 2; page <= totalPages; page++) {
-    const data = await getAllPublicDoctors({ page, limit });
+    const data = await getAllPublicDoctors({ page, limit: CRAWL_PAGE_SIZE });
     all.push(...data.data);
   }
 
@@ -24,7 +43,6 @@ const page = async({ params }: { params: Promise<{ id: string }> }) => {
     const {id} = await params
   const data = await getPublicDoctorProfile(id) 
   const doctor = data?.data|| undefined
-  console.log(doctor);
 
   if(!doctor) return <p>No doctor found with this data</p>
  
