@@ -84,6 +84,28 @@ export interface PayAppointmentPayload {
 
 export interface CancelAppointmentPayload {
   appointmentId: string;
+  /**
+   * Mirrors CancelAppointmentValidationZodSchema on the backend, which trims and
+   * requires 3-500 characters. It was missing here, so a cancel built from this
+   * type could not be sent.
+   */
+  refundReason: string;
+}
+
+/** `pay-appointment` hands back a bKash URL to send the browser to. */
+export interface PayAppointmentResponse {
+  paymentUrl: string;
+}
+
+/**
+ * `cancel-appointment` returns the updated appointment and the payment row it
+ * touched. `payment` is null when the appointment was never paid, and carries a
+ * REFUNDED row when the cancellation happened more than an hour before the
+ * scheduled start, which is the backend's refund cut-off.
+ */
+export interface CancelAppointmentResponse {
+  appointment: Appointment;
+  payment: Payment | null;
 }
 
 export interface BookAppointmentResponse {
