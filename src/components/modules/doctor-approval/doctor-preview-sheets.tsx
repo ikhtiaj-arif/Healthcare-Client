@@ -33,7 +33,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
-import { useApproveRejectDoctor } from "@/hooks";
+import { DOCTORS_QUERY_KEY, useApproveRejectDoctor } from "@/hooks";
 import type { DoctorApprovalStatus } from "@/types";
 import { type DoctorApplication, statusMeta } from "./doctor-approval.data";
 
@@ -108,7 +108,7 @@ export function DoctorPreviewSheets({
               : "Doctor account rejected successfully.";
           closeConfirm();
           onOpenChange(false);
-          queryClient.invalidateQueries({ queryKey: ["doctors"] });
+          queryClient.invalidateQueries({ queryKey: DOCTORS_QUERY_KEY });
           toast.add({
             title:
               confirmAction === "APPROVED"
