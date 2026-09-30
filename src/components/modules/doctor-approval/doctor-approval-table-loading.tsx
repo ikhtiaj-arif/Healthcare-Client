@@ -3,7 +3,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import React from "react";
 
 const DoctorApprovalTableLoading = () => {
-     const skeletonCells = [
+  const skeletonCells = [
     "cell-1",
     "cell-2",
     "cell-3",

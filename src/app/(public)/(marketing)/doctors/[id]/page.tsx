@@ -1,8 +1,21 @@
 import { getAllPublicDoctors, getPublicDoctorProfile } from "@/api";
 import DoctorBooking from "@/components/modules/doctors/doctor-bookings";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, BriefcaseBusiness, GraduationCap, ScrollText, Stethoscope, Wallet } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ArrowLeft,
+  BriefcaseBusiness,
+  GraduationCap,
+  ScrollText,
+  Stethoscope,
+  Wallet,
+} from "lucide-react";
 import Link from "next/link";
 
 /**
@@ -39,15 +52,15 @@ export async function generateStaticParams() {
 
   return all.map((doctor) => ({ id: doctor.id }));
 }
-const page = async({ params }: { params: Promise<{ id: string }> }) => {
-    const {id} = await params
-  const data = await getPublicDoctorProfile(id) 
-  const doctor = data?.data|| undefined
+const page = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
+  const data = await getPublicDoctorProfile(id);
+  const doctor = data?.data || undefined;
 
-  if(!doctor) return <p>No doctor found with this data</p>
- 
-  
-  return  <div className="mx-auto max-w-2xl space-y-8">
+  if (!doctor) return <p>No doctor found with this data</p>;
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-8">
       <div className="my-10">
         <Button
           variant="ghost"
@@ -105,6 +118,7 @@ const page = async({ params }: { params: Promise<{ id: string }> }) => {
         <DoctorBooking doctorId={doctor.id} />
       </div>
     </div>
+  );
 };
 
 export default page;

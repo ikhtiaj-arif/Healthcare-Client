@@ -1,4 +1,4 @@
-const prefix = "/admin"
+const prefix = "/admin";
 
 export const adminRoutes = [
   {

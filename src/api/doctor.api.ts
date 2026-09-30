@@ -59,7 +59,6 @@ export async function getAllDoctors(
   return { data: response.data, meta: response.meta };
 }
 
-
 export function getAllPublicDoctors(params: PublicDoctorParams) {
   return apiClient<ApiResponse<PublicDoctorProfile[]>>(
     "/doctor/public/all-doctors",

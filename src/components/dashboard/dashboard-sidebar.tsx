@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Sidebar,
@@ -19,8 +19,6 @@ import { SidebarItems } from "@/types/sidebar.type";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
- 
-
 const sidebarRoutes: Record<UserRole, SidebarItems> = {
   ADMIN: adminRoutes,
   SUPER_ADMIN: adminRoutes,
@@ -29,16 +27,16 @@ const sidebarRoutes: Record<UserRole, SidebarItems> = {
 };
 
 export function DashboardSidebar({ role }: { role: UserRole }) {
-  const pathName = usePathname()
-  const routes = sidebarRoutes[role]
+  const pathName = usePathname();
+  const routes = sidebarRoutes[role];
   return (
     <Sidebar>
       <SidebarHeader>
         <Link href={"/"}>
-        <h1 className="text-lg flex items-center  font-bold">
-          <Logo />
-          HealthCare Service
-        </h1>
+          <h1 className="text-lg flex items-center  font-bold">
+            <Logo />
+            HealthCare Service
+          </h1>
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -51,9 +49,10 @@ export function DashboardSidebar({ role }: { role: UserRole }) {
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                     render={<Link href={item.url} />} isActive={pathName === item.url}
+                      render={<Link href={item.url} />}
+                      isActive={pathName === item.url}
                     >
-                     {item.title}
+                      {item.title}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

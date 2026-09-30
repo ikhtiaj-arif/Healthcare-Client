@@ -1,11 +1,11 @@
 export interface ISidebarItem {
-    title: string
-    url: string
+  title: string;
+  url: string;
 }
 
 export interface ISidebarGroup {
-    title: string
-    items: ISidebarItem[]
+  title: string;
+  items: ISidebarItem[];
 }
 
-export type SidebarItems = ISidebarGroup[]
+export type SidebarItems = ISidebarGroup[];

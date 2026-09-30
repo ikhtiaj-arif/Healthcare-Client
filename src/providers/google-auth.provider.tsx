@@ -15,5 +15,5 @@ const GoogleAuthProvider = ({ children }: { children: React.ReactNode }) => {
 export default GoogleAuthProvider;
 
 export function googleOAuth(payload: { idToken: string }) {
-  return apiClient("/auth/google-login", {method:"POST", body: payload });
+  return apiClient("/auth/google-login", { method: "POST", body: payload });
 }
