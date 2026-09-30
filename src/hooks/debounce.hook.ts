@@ -1,12 +1,21 @@
-/** biome-ignore-all lint/correctness/useExhaustiveDependencies: <explanation> */
 import { useEffect, useState } from "react";
 
-export default function useDebounce<T>(search:T, delay: number = 500) {
-    const [debouncedSearch, setDebouncedSearch] = useState(search)
+/**
+ * Delays propagating a rapidly-changing value, so a search box does not fire a
+ * request per keystroke.
+ *
+ * The effect previously hardcoded 500ms and ignored the `delay` argument, so
+ * every caller silently got 500 regardless of what it asked for. The
+ * dependency array also omitted `delay` and `initialValue`, which is why the
+ * file needed a blanket biome-ignore.
+ */
+export default function useDebounce<T>(value: T, delay = 500): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
-   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 500);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
     return () => clearTimeout(timer);
-  }, [search]);
-    return debouncedSearch
+  }, [value, delay]);
+
+  return debouncedValue;
 }
