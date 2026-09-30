@@ -20,6 +20,13 @@ import { SCHEDULES_QUERY_KEY } from "./schedule.hook";
 
 export const APPOINTMENTS_QUERY_KEY = ["appointments"] as const;
 
+/**
+ * Payments live in their own module but the sidebar groups them under the same
+ * "payments and refunds" area, so the key is declared next to the appointments
+ * one and re-exported from payment.hook.
+ */
+export const PAYMENTS_QUERY_KEY = ["payments"] as const;
+
 export function useBookAppointment() {
   const queryClient = useQueryClient();
 
