@@ -1,8 +1,10 @@
 "use client";
-import { Eye, Inbox } from "lucide-react";
+import { Eye, Inbox, SearchX } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyTableRow } from "@/components/ui/empty-state";
+import { SortableTableHead } from "@/components/ui/sortable-table-head";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -11,9 +13,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { type DoctorApplication, statusMeta } from "./doctor-approval.data";
-import { DoctorPreviewSheets } from "./doctor-preview-sheets";
+import type { DoctorSortField } from "@/types";
+import type { DoctorApplication } from "./doctor-approval.data";
 import DoctorApprovalTableLoading from "./doctor-approval-table-loading";
+import { DoctorPreviewSheets } from "./doctor-preview-sheets";
 
 function getInitials(name: string) {
   return name
@@ -37,14 +40,22 @@ function getInitialsClassName(name: string) {
   return variants[code];
 }
 
- 
-
 export function DoctorApprovalTable({
   applications,
   isPending = false,
+  sortBy,
+  sortOrder,
+  onSortChange,
+  isFiltered = false,
+  onClearFilters,
 }: {
   applications: DoctorApplication[];
   isPending: boolean;
+  sortBy?: DoctorSortField;
+  sortOrder?: "asc" | "desc";
+  onSortChange?: (field: DoctorSortField, order: "asc" | "desc") => void;
+  isFiltered?: boolean;
+  onClearFilters?: () => void;
 }) {
   const [selected, setSelected] = useState<DoctorApplication | null>(null);
 
@@ -53,34 +64,86 @@ export function DoctorApprovalTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[280px]">Doctor</TableHead>
-            <TableHead>Specialization</TableHead>
+            <SortableTableHead
+              field="name"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSortChange={onSortChange}
+              className="w-[280px]"
+            >
+              Doctor
+            </SortableTableHead>
+            <SortableTableHead
+              field="specialization"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSortChange={onSortChange}
+            >
+              Specialization
+            </SortableTableHead>
             <TableHead>License</TableHead>
-            <TableHead>Experience</TableHead>
-            <TableHead>Fee</TableHead>
-            <TableHead>Applied</TableHead>
-            <TableHead>Status</TableHead>
+            <SortableTableHead
+              field="experienceYears"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSortChange={onSortChange}
+            >
+              Experience
+            </SortableTableHead>
+            <SortableTableHead
+              field="consultationFee"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSortChange={onSortChange}
+            >
+              Fee
+            </SortableTableHead>
+            <SortableTableHead
+              field="createdAt"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSortChange={onSortChange}
+            >
+              Applied
+            </SortableTableHead>
+            <SortableTableHead
+              field="verificationStatus"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSortChange={onSortChange}
+            >
+              Status
+            </SortableTableHead>
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isPending ? (
-              <DoctorApprovalTableLoading />
+            <DoctorApprovalTableLoading />
           ) : applications.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={8}
-                className="h-40 text-center text-muted-foreground"
-              >
-                <div className="flex flex-col items-center justify-center gap-2">
-                  <Inbox className="size-6" />
-                  <span className="text-sm">No applications here yet.</span>
-                </div>
-              </TableCell>
-            </TableRow>
+            <EmptyTableRow
+              colSpan={8}
+              icon={isFiltered ? SearchX : Inbox}
+              title={
+                isFiltered
+                  ? "No applications match these filters"
+                  : "No applications here yet."
+              }
+              description={
+                isFiltered
+                  ? "Try a different search term, or clear the filters to see every application."
+                  : undefined
+              }
+              action={
+                isFiltered && onClearFilters ? (
+                  <Button variant="outline" size="sm" onClick={onClearFilters}>
+                    Clear filters
+                  </Button>
+                ) : undefined
+              }
+            />
           ) : (
             applications.map((application) => {
-              const status = statusMeta[application.status];
               return (
                 <TableRow key={application.id}>
                   <TableCell>
@@ -119,11 +182,7 @@ export function DoctorApprovalTable({
                     {application.appliedAt}
                   </TableCell>
                   <TableCell>
-                    <span
-                      className={`inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-semibold tracking-wider uppercase ${status.badgeClassName}`}
-                    >
-                      {status.label}
-                    </span>
+                    <StatusBadge status={application.status} />
                   </TableCell>
                   <TableCell className="text-right">
                     {application.user.emailVerified ? (

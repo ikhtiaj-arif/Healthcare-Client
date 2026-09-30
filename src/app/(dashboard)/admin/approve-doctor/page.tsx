@@ -1,4 +1,5 @@
 import { ClipboardCheck } from "lucide-react";
+import { Suspense } from "react";
 import { DoctorApprovalStats } from "@/components/modules/doctor-approval/doctor-approval-stats";
 import { DoctorApprovalTabs } from "@/components/modules/doctor-approval/doctor-approval-tabs";
 
@@ -22,7 +23,12 @@ const Page = () => {
 
       <DoctorApprovalStats />
 
-      <DoctorApprovalTabs />
+      {/* DoctorApprovalTabs reads the tab, page and search from the query string
+          via useSearchParams. Under output: "export" that opts this route into
+          client rendering, so it needs a boundary or the build fails. */}
+      <Suspense fallback={null}>
+        <DoctorApprovalTabs />
+      </Suspense>
     </div>
   );
 };

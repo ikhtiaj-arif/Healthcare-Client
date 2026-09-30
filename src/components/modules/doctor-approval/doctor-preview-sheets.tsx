@@ -31,11 +31,12 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { DOCTORS_QUERY_KEY, useApproveRejectDoctor } from "@/hooks";
 import type { DoctorApprovalStatus } from "@/types";
-import { type DoctorApplication, statusMeta } from "./doctor-approval.data";
+import type { DoctorApplication } from "./doctor-approval.data";
 
 function InfoRow({
   icon,
@@ -80,7 +81,6 @@ export function DoctorPreviewSheets({
     return null;
   }
 
-  const status = statusMeta[application.status];
   const isPendingDoctor = application.status === "PENDING";
 
   const closeConfirm = () => {
@@ -137,10 +137,8 @@ export function DoctorPreviewSheets({
           <SheetHeader>
             <div className="flex items-center gap-2">
               <SheetTitle>{application.name}</SheetTitle>
-              <span
-                className={`inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-semibold tracking-wider uppercase ${status.badgeClassName}`}
-              >
-                {status.label}
+              <span>
+                <StatusBadge status={application.status} />
               </span>
             </div>
             <SheetDescription>

@@ -45,6 +45,7 @@ export function DataTableToolbar<T extends string>({
   statusTabs,
   activeStatus,
   onStatusChange,
+  statusTabsVariant,
   selectFilters,
   total,
   totalPages,
@@ -56,6 +57,7 @@ export function DataTableToolbar<T extends string>({
   statusTabs?: StatusTabOption<T>[];
   activeStatus?: T;
   onStatusChange?: (value: T) => void;
+  statusTabsVariant?: "default" | "line";
   selectFilters?: {
     id: string;
     label: string;
@@ -133,7 +135,7 @@ export function DataTableToolbar<T extends string>({
           value={activeStatus ?? "ALL"}
           onValueChange={(value) => onStatusChange(value as T)}
         >
-          <TabsList>
+          <TabsList variant={statusTabsVariant}>
             {statusTabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>
                 {tab.label}

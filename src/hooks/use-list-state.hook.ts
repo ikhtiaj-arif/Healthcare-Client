@@ -23,10 +23,13 @@ import { useCallback, useMemo } from "react";
  * `push` defaults to false because a filter change is not a navigation the user
  * should have to undo one keystroke at a time.
  */
-export function useListState<TFilters extends Record<string, string>>({
+export function useListState<TFilters extends Record<string, unknown>>({
   defaults,
   push = false,
 }: {
+  // `unknown` rather than `string`: the three built-ins are numeric, so a
+  // `Record<string, string>` constraint rejects an otherwise valid
+  // `{ page: 1, limit: 10 }` on the index signature.
   defaults: TFilters & {
     page?: number;
     limit?: number;
@@ -71,8 +74,11 @@ export function useListState<TFilters extends Record<string, string>>({
   const setState = useCallback(
     (
       patch: Partial<
+        // Union, not intersection: `keyof TFilters` holds the caller's own
+        // filters and is disjoint from the three built-ins, so intersecting the
+        // two sets collapses to `never` and silently accepts no keys at all.
         Record<
-          keyof TFilters & ("page" | "limit" | "sortOrder"),
+          keyof TFilters | "page" | "limit" | "sortOrder",
           string | number | undefined
         >
       >,
