@@ -1,28 +1,6 @@
-import type {
-  ApplicationStatus,
-  Doctor,
-  DoctorApplication,
-} from "@/types";
+import type { Doctor, DoctorApplication } from "@/types";
 
-export type { ApplicationStatus, DoctorApplication } from "@/types";
-
-export const statusMeta: Record<
-  ApplicationStatus,
-  { label: string; badgeClassName: string }
-> = {
-  PENDING: {
-    label: "Pending",
-    badgeClassName: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-  },
-  APPROVED: {
-    label: "Approved",
-    badgeClassName: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-  },
-  REJECTED: {
-    label: "Rejected",
-    badgeClassName: "bg-destructive/10 text-destructive",
-  },
-};
+export type { DoctorApplication } from "@/types";
 
 export function mapDoctorToApplication(doctor: Doctor) {
   return {

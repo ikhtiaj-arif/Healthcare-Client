@@ -20,7 +20,7 @@ const Header = () => {
     SUPER_ADMIN: "/admin",
     ADMIN: "/admin",
     DOCTOR: "/doctor",
-    PATIENT: "/patient",
+    PATIENT: "/dashboard",
   };
 
   const { data, isLoading } = useGetMe();

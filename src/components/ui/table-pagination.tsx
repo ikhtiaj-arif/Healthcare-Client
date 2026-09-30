@@ -1,4 +1,3 @@
-import type { Dispatch, SetStateAction } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -38,7 +37,14 @@ const getButtonArray = (
 
 interface Props {
   totalPages: number;
-  handlePageChange: Dispatch<SetStateAction<number>>;
+  /**
+   * A plain number callback, not a React state setter. This component only ever
+   * calls it with a concrete page number, and typing it as
+   * `Dispatch<SetStateAction<number>>` meant a caller could be handed a function
+   * it was expected to resolve, which is not a thing a page-number prop can be.
+   * Existing `setPage` callers still satisfy this signature.
+   */
+  handlePageChange: (page: number) => void;
   page: number;
 }
 

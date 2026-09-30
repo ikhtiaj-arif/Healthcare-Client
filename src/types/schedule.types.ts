@@ -1,11 +1,6 @@
-export type ScheduleStatus = "DRAFT" | "PUBLISHED";
+import type { AppointmentStatus } from "./appointment.type";
 
-export type AppointmentStatus =
-  | "PENDING"
-  | "CONFIRMED"
-  | "CANCELLED"
-  | "ONGOING"
-  | "COMPLETED";
+export type ScheduleStatus = "DRAFT" | "PUBLISHED";
 
 export interface ScheduleAppointment {
   id: string;

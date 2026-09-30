@@ -86,11 +86,28 @@ export interface Doctor {
 
 export type GetAllDoctorsResponse = PaginatedData<Doctor>;
 
+/**
+ * Mirrors DOCTOR_SORTABLE_FIELDS in Healthcare-Backend/src/app/utils/sort.ts.
+ *
+ * Kept as a union rather than `string` so the backend's allow-list is enforced
+ * at compile time here too: naming a column the backend rejects becomes a type
+ * error instead of a 400. Keep the two in sync.
+ */
+export type DoctorSortField =
+  | "createdAt"
+  | "updatedAt"
+  | "name"
+  | "specialization"
+  | "experienceYears"
+  | "consultationFee"
+  | "verificationStatus";
+
 export interface DoctorParams {
   page?: number;
   limit?: number;
   verificationStatus?: DoctorVerificationStatus;
   searchTerm?: string;
+  sortBy?: DoctorSortField;
   sortOrder?: "desc" | "asc";
 }
 

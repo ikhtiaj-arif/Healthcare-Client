@@ -5,9 +5,11 @@ import type {
   DoctorApplicationPayload,
   DoctorApprovalPayload,
   DoctorParams,
+  PaginatedApiResponse,
   PaginatedData,
   PublicDoctorParams,
   PublicDoctorProfile,
+  Schedule,
   VerifyAccountPayload,
 } from "@/types";
 
@@ -48,13 +50,13 @@ export async function doctorAccountApprovalRejection(
 export async function getAllDoctors(
   params: DoctorParams,
 ): Promise<PaginatedData<Doctor>> {
-  const response = await apiClient<ApiResponse<PaginatedData<Doctor>>>(
+  const response = await apiClient<PaginatedApiResponse<Doctor>>(
     `/doctor/all-doctors`,
     {
       params,
     },
   );
-  return response.data;
+  return { data: response.data, meta: response.meta };
 }
 
 
@@ -71,4 +73,14 @@ export function getPublicDoctorProfile(doctorId: string) {
   return apiClient<ApiResponse<PublicDoctorProfile>>(
     `/doctor/public/${doctorId}`,
   );
+}
+
+export function getTodayScheduleByDoctor(params: {
+  doctorId?: string;
+  page?: number;
+  limit?: number;
+}) {
+  return apiClient<ApiResponse<Schedule[]>>("/schedule/todays-schedule", {
+    params,
+  });
 }
