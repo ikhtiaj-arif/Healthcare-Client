@@ -7,11 +7,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <GoogleAuthProvider>
       <QueryProvider>
-         <TooltipProvider>
-
-        {children}
-         </TooltipProvider>
-        </QueryProvider>
+        <TooltipProvider>{children}</TooltipProvider>
+      </QueryProvider>
     </GoogleAuthProvider>
   );
 }

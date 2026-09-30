@@ -4,9 +4,11 @@ import DashboardShell from "@/components/dashboard/dashboars-shell";
 import React, { ReactNode } from "react";
 
 const layout = ({ children }: { children: ReactNode }) => {
-  return <RoleGuard roles={[  "DOCTOR"]}>
-    <DashboardShell role="DOCTOR">{children}</DashboardShell>
-    </RoleGuard>;
+  return (
+    <RoleGuard roles={["DOCTOR"]}>
+      <DashboardShell role="DOCTOR">{children}</DashboardShell>
+    </RoleGuard>
+  );
 };
 
 export default layout;

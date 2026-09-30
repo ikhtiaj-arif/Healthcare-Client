@@ -206,7 +206,9 @@ export default function ScheduleTable({ schedules }: Props) {
 
           <DialogFooter>
             <DialogClose
-              render={<Button variant="outline" disabled={deletingId !== null} />}
+              render={
+                <Button variant="outline" disabled={deletingId !== null} />
+              }
             >
               Cancel
             </DialogClose>

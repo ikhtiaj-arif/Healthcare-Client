@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,11 +19,7 @@ import { toast } from "@/components/ui/toast";
 import { useCancelAppointment } from "@/hooks";
 import type { Appointment } from "@/types";
 import { getApiErrorMessage } from "@/utils";
-import {
-  cancelAppointmentSchema,
-  isRefundExpected,
-} from "@/validation";
-import { useState } from "react";
+import { cancelAppointmentSchema, isRefundExpected } from "@/validation";
 
 /**
  * Cancel an appointment, with a required reason.
@@ -41,7 +38,11 @@ export function CancelAppointmentDialog({
   trigger,
 }: {
   appointment: Appointment;
-  trigger?: React.ReactNode;
+  /**
+   * A React element rather than ReactNode: Base UI's `render` prop composes the
+   * trigger by cloning the element, so a string or fragment is not accepted.
+   */
+  trigger?: React.ReactElement;
 }) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -60,7 +61,8 @@ export function CancelAppointmentDialog({
 
     if (!parsed.success) {
       setReasonError(
-        parsed.error.issues[0]?.message ?? "Please give a reason for cancelling",
+        parsed.error.issues[0]?.message ??
+          "Please give a reason for cancelling",
       );
       return;
     }
@@ -78,11 +80,12 @@ export function CancelAppointmentDialog({
           setReason("");
           toast.add({
             title: "Appointment cancelled",
-            description: result.payment?.status === "REFUNDED"
-              ? "Your payment is being refunded to your bKash account."
-              : wasPaid
-                ? "The appointment was cancelled. It is past the refund cut-off, so no refund was issued."
-                : "The slot has been released.",
+            description:
+              result.payment?.status === "REFUNDED"
+                ? "Your payment is being refunded to your bKash account."
+                : wasPaid
+                  ? "The appointment was cancelled. It is past the refund cut-off, so no refund was issued."
+                  : "The slot has been released.",
             type: "success",
           });
         },
@@ -159,7 +162,9 @@ export function CancelAppointmentDialog({
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Keep appointment</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>
+            Keep appointment
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isPending}

@@ -1,4 +1,4 @@
-const prefix = "/doctor"
+const prefix = "/doctor";
 
 export const doctorRoutes = [
   {

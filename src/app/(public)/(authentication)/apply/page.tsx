@@ -1,6 +1,6 @@
 import Logo from "@/assets/svg/Logo";
 import DoctorApplyForm from "@/components/form/DoctorApplyForm";
- 
+
 import Link from "next/link";
 
 export default function ApplyPage() {
