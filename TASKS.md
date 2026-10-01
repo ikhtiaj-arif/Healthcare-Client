@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 42 / 112 complete
+**Progress:** 44 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -385,12 +385,17 @@ Routes: n/a — public content
 ## Section I — Bugs & cleanup
 
 ### Security
-- [ ] **I1** `src/components/form/LoginForm.tsx:58-61` ships
+- [x] **I1** `src/components/form/LoginForm.tsx:58-61` shipped
   `superadmin@gmail.com` / `Super@admin1234` as the form's `defaultValues`. Cleartext
-  super-admin credentials are in the production bundle.
-- [ ] **I2** `src/app/(dashboard)/doctor/schedule/error.tsx:9` destructures `retry`; Next passes
-  `reset`. The "Try again" button throws `TypeError: retry is not a function`. `tsc` cannot catch
-  this — Next's generated validator does not cover `error.tsx` props.
+  super-admin credentials were in the production bundle. **Fixed** — both defaults are
+  now `""`, with a comment saying why so they are not "helpfully" restored. Swept
+  `src/` afterwards: no other hard-coded credentials remain.
+- [x] **I2** ~~`error.tsx` destructures `retry`; Next passes `reset`~~ — **RETRACTED,
+  this was a false positive in the audit.** Verified against Next 16.3.4's runtime at
+  `node_modules/next/dist/client/components/error-boundary.js:113-115`, which passes
+  **both** `reset` and `retry` to the error component; the bundled docs document `retry`
+  as the recommended prop. `doctor/schedule/error.tsx` is correct as written and its
+  "Try again" button does not throw. No change made.
 
 ### Broken features
 - [ ] **I3** `src/app/(dashboard)/dashboard/my-appointments/page.tsx:17-19` renders only
