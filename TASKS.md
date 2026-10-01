@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 36 / 112 complete
+**Progress:** 39 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -211,11 +211,22 @@ Routes: n/a — corrections
 ## Section B — Auth & profile UI
 
 ### B1 — Forgot password
-- [ ] `src/components/form/ForgotPasswordForm.tsx` — email only; the OTP lives in Redis for
-  300 s, so surface the 5-minute window in the success copy
-- [ ] `src/app/(public)/(authentication)/forgot-password/page.tsx`
-- [ ] link from `LoginForm.tsx`
+- [x] `src/components/form/ForgotPasswordForm.tsx` — email only; the OTP lives in Redis for
+  300 s, so surface the 5-minute window in the success copy (`OTP_LIFETIME_MINUTES`)
+- [x] `src/app/(public)/(authentication)/forgot-password/page.tsx` — no Suspense
+  boundary: unlike `/login` this form never calls `useSearchParams`
+- [x] link from `LoginForm.tsx` (`href="#"` → `/forgot-password`)
 Routes: `POST /auth/forgot-password`
+
+Backend rejects before sending, each with a distinct status — 404 "User does not
+exist!", 403 "User not verified!", 403 "User is Blocked!", 404 "User is Deleted!",
+409 "User Has account with google". All surfaced verbatim via `getApiErrorMessage`.
+Note this makes the endpoint an **account-enumeration oracle**: "no such user" vs
+"unverified" vs "google-only" are distinguishable by status code. Backend behaviour,
+not something the form should paper over.
+Response is `data: null` — no expiry is returned, hence the hardcoded 5 minutes.
+**Flow is incomplete until B2:** success pushes to `/reset-password?email=…`,
+which does not exist yet and will 404.
 
 ### B2 — Reset password
 - [ ] `src/components/form/ResetPasswordForm.tsx` — email + 6-char OTP + new password, reusing
