@@ -2,7 +2,7 @@
 import Logo from "@/assets/svg/Logo";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
-import { useGetMe, useLogout } from "@/hooks";
+import { USER_QUERY_KEY, useGetMe, useLogout } from "@/hooks";
 import { UserRole } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -37,7 +37,7 @@ const Header = () => {
           description: "You have been logged out successfully.",
           type: "success",
         });
-        queryClient.removeQueries({ queryKey: ["user"] });
+        queryClient.removeQueries({ queryKey: USER_QUERY_KEY });
       },
       onError: () => {
         toast.add({

@@ -10,6 +10,15 @@ import {
 import { googleOAuth } from "@/providers/google-auth.provider";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
+/**
+ * The signed-in user's own row, as returned by `GET /auth/me`.
+ *
+ * Exported because more than one feature mutates it: logging out and uploading a
+ * new profile picture both need to invalidate exactly this key, and a second
+ * hand-written `["user"]` literal would silently stop refreshing the avatar.
+ */
+export const USER_QUERY_KEY = ["user"] as const;
+
 export function useLogin() {
   return useMutation({
     mutationFn: userLogin,
@@ -54,7 +63,7 @@ export function useResetPassword() {
 }
 export function useGetMe() {
   return useQuery({
-    queryKey: ["user"],
+    queryKey: USER_QUERY_KEY,
     queryFn: getMe,
     retry: false,
   });
