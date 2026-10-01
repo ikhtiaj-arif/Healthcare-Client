@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 28 / 112 complete
+**Progress:** 32 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -183,13 +183,16 @@ appointment is COMPLETED, and 409 if one already exists (no edit or re-issue pat
 hence `retry: 0`, since the default 3 would stall the empty state.
 
 ### A8 — Analytics
-- [ ] `src/api/analytics.api.ts` (new): `getPatientAnalytics`, `getDoctorAnalytics`,
+- [x] `src/api/analytics.api.ts` (new): `getPatientAnalytics`, `getDoctorAnalytics`,
   `getAdminAnalytics`
-- [ ] `src/types/analytics.type.ts` (new): `PatientAnalytics` (6 keys),
+- [x] `src/types/analytics.type.ts` (new): `PatientAnalytics` (6 keys),
   `DoctorAnalytics` (9 keys, `totalDoctorRefunded`), `AdminAnalytics` (10 keys, `totalRevenue`)
-- [ ] `src/hooks/analytics.hook.ts` (new): `ANALYTICS_QUERY_KEY` + three hooks
-- [ ] register in barrels
+- [x] `src/hooks/analytics.hook.ts` (new): `ANALYTICS_QUERY_KEY` + three hooks
+- [x] register in barrels
 Routes: `GET /analytics/patient-analytics`, `/doctor-analytics`, `/admin-analytics`
+Three gotchas confirmed in `analytics.service.ts`: `upcomingAppointments` counts
+CONFIRMED only; `totalDoctorEarnings` is net of refunds (not gross); and the refund
+key is `totalRefunded` for patient/admin but `totalDoctorRefunded` for doctor.
 
 ### A9 — Cross-cutting corrections
 - [ ] `src/types/api-response.type.ts`: delete the false "the doctor module nests instead"

@@ -1,3 +1,4 @@
+export * from "./analytics.hook";
 export * from "./appointment.hook";
 export * from "./auth.hook";
 export { default as useDebounce } from "./debounce.hook";

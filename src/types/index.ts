@@ -1,3 +1,4 @@
+export * from "./analytics.type";
 export * from "./api-response.type";
 export * from "./appointment.type";
 export * from "./auth.type";
