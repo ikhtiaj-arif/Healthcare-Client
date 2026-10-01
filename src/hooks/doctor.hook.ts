@@ -10,7 +10,6 @@ import {
   getAllDoctors,
   getAllPublicDoctors,
   getAvailableDoctorsToday,
-  getPublicDoctorProfile,
   getTodayScheduleByDoctor,
   updateMyDoctorProfile,
   verifyDoctorAccount,
@@ -94,32 +93,18 @@ export function useGetDoctorCounts() {
   });
 }
 
-export function useGetAllPublicDoctors(params: PublicDoctorParams) {
-  return useQuery({
-    queryKey: [...DOCTORS_QUERY_KEY, "public", params],
-    queryFn: () => getAllPublicDoctors(params),
-  });
-}
-
+/**
+ * The public directory list, used by `doctor-list.tsx` via suspense so a failure
+ * reaches the segment's `error.tsx` rather than rendering an empty table.
+ *
+ * A non-suspense twin of this was removed: it had no callers, and on a static
+ * export `useQuery` is the wrong shape here anyway — the doctor pages need the
+ * data at build time, not in the browser.
+ */
 export function useSuspenseGetPublicDoctors(params: PublicDoctorParams) {
   return useSuspenseQuery({
     queryKey: [...DOCTORS_QUERY_KEY, "public", params],
     queryFn: () => getAllPublicDoctors(params),
-  });
-}
-
-export function usePublicDoctorProfile(doctorId: string) {
-  return useQuery({
-    queryKey: [...DOCTORS_QUERY_KEY, "public", "detail", doctorId],
-    queryFn: () => getPublicDoctorProfile(doctorId),
-    enabled: !!doctorId,
-  });
-}
-
-export function useSuspenseGetAllDoctors(params: DoctorParams) {
-  return useSuspenseQuery({
-    queryKey: [...DOCTORS_QUERY_KEY, "list", params],
-    queryFn: () => getAllDoctors(params),
   });
 }
 

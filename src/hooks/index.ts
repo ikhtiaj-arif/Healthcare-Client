@@ -7,4 +7,5 @@ export * from "./payment.hook";
 export * from "./prescription.hook";
 export * from "./schedule.hook";
 export { useListState } from "./use-list-state.hook";
+export { useIsMobile } from "./use-mobile";
 export * from "./user.hook";
