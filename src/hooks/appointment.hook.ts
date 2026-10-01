@@ -7,14 +7,18 @@ import {
 import {
   bookAppointment,
   cancelAppointment,
+  getAllAppointments,
   getAppointmentById,
+  getDoctorAppointments,
   getMyAppointments,
   payAppointment,
+  updateAppointmentStatus,
 } from "@/api";
 import type {
+  AllAppointmentsParams,
   AppointmentParams,
-  CancelAppointmentPayload,
-  PayAppointmentPayload,
+  DoctorAppointmentsParams,
+  UpdateAppointmentStatusPayload,
 } from "@/types";
 import { SCHEDULES_QUERY_KEY } from "./schedule.hook";
 
@@ -99,6 +103,60 @@ export function usePayAppointment() {
     // replaces the page anyway.
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: APPOINTMENTS_QUERY_KEY });
+    },
+  });
+}
+
+/**
+ * Scopes the doctor's own list to `"mine"` and the admin list to `"all"`.
+ *
+ * They are separate caches rather than one key with an optional segment, because
+ * a doctor and an admin can never see the same rows and there is no screen that
+ * switches between them — a shared key would let one role's cached page survive
+ * into the other's view until it happened to refetch.
+ */
+export function useGetDoctorAppointments(params: DoctorAppointmentsParams) {
+  return useQuery({
+    queryKey: [...APPOINTMENTS_QUERY_KEY, "doctor", params],
+    queryFn: () => getDoctorAppointments(params),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useGetAllAppointments(params: AllAppointmentsParams) {
+  return useQuery({
+    queryKey: [...APPOINTMENTS_QUERY_KEY, "all", params],
+    queryFn: () => getAllAppointments(params),
+    placeholderData: keepPreviousData,
+  });
+}
+
+/**
+ * The mutation takes the id as its own argument because the endpoint carries it
+ * in the path rather than the body, so a single `mutationFn` cannot read it from
+ * a payload object.
+ */
+export function useUpdateAppointmentStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      appointmentId,
+      ...payload
+    }: UpdateAppointmentStatusPayload & { appointmentId: string }) =>
+      updateAppointmentStatus(appointmentId, payload),
+    onSuccess: (_data, variables) => {
+      // Invalidates the whole prefix, which covers the patient, doctor and admin
+      // lists — a status change is visible in whichever one is mounted.
+      queryClient.invalidateQueries({ queryKey: APPOINTMENTS_QUERY_KEY });
+      // The detail sheet may be open on the row that just moved.
+      queryClient.removeQueries({
+        queryKey: [
+          ...APPOINTMENTS_QUERY_KEY,
+          "detail",
+          variables.appointmentId,
+        ],
+      });
     },
   });
 }
