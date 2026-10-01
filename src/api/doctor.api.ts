@@ -1,6 +1,8 @@
 import apiClient from "@/lib/apiClient";
 import type {
   ApiResponse,
+  AvailableDoctorsParams,
+  AvailableDoctorToday,
   Doctor,
   DoctorApplicationPayload,
   DoctorApprovalPayload,
@@ -10,6 +12,7 @@ import type {
   PublicDoctorParams,
   PublicDoctorProfile,
   Schedule,
+  UpdateDoctorProfilePayload,
   VerifyAccountPayload,
 } from "@/types";
 
@@ -82,4 +85,47 @@ export function getTodayScheduleByDoctor(params: {
   return apiClient<ApiResponse<Schedule[]>>("/schedule/todays-schedule", {
     params,
   });
+}
+
+/**
+ * Public list of doctors with a bookable slot left today.
+ *
+ * Unauthenticated, so it is safe to call from a marketing page. The backend
+ * hard-filters to approved, non-deleted doctors with a PUBLISHED schedule today
+ * that still has free slots and has not started — none of that is filterable
+ * from the client, so an empty page means the filter matched nothing rather than
+ * that the caller forgot a parameter.
+ *
+ * The nested schedules come back **without** `meetingLink` or `status`; see
+ * `AvailableDoctorSchedule`.
+ */
+export async function getAvailableDoctorsToday(
+  params: AvailableDoctorsParams,
+): Promise<PaginatedData<AvailableDoctorToday>> {
+  const response = await apiClient<PaginatedApiResponse<AvailableDoctorToday>>(
+    "/doctor/public/available-today",
+    { params },
+  );
+  return { data: response.data, meta: response.meta };
+}
+
+/**
+ * Updates the signed-in doctor's own profile.
+ *
+ * Doctor-only and self-scoped — there is no doctorId in the path or body. Only
+ * the four fields on `UpdateDoctorProfilePayload` are accepted; zod strips
+ * anything else, so sending `specialization` would be silently ignored rather
+ * than rejected.
+ *
+ * Returns the full doctor row, which carries **no** `imageUrl` — that lives on
+ * the `User`, not the `Doctor`. Refetch `/auth/me` if the avatar is on screen.
+ */
+export async function updateMyDoctorProfile(
+  payload: UpdateDoctorProfilePayload,
+): Promise<Doctor> {
+  const response = await apiClient<ApiResponse<Doctor>>(
+    "/doctor/update-my-profile",
+    { method: "PATCH", body: payload },
+  );
+  return response.data;
 }

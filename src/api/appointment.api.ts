@@ -1,5 +1,7 @@
 import apiClient from "@/lib/apiClient";
 import type {
+  AllAppointment,
+  AllAppointmentsParams,
   ApiResponse,
   Appointment,
   AppointmentParams,
@@ -7,10 +9,13 @@ import type {
   BookAppointmentResponse,
   CancelAppointmentPayload,
   CancelAppointmentResponse,
+  DoctorAppointment,
+  DoctorAppointmentsParams,
   PaginatedApiResponse,
   PaginatedData,
   PayAppointmentPayload,
   PayAppointmentResponse,
+  UpdateAppointmentStatusPayload,
 } from "@/types";
 
 export async function bookAppointment(payload: BookAppointmentPayload) {
@@ -74,6 +79,61 @@ export async function cancelAppointment(
   const response = await apiClient<ApiResponse<CancelAppointmentResponse>>(
     "/appointment/cancel-appointment",
     { method: "POST", body: payload },
+  );
+  return response.data;
+}
+
+/**
+ * The signed-in doctor's own appointments.
+ *
+ * Scoped by the token, not by a query param — there is no `doctorId` here. Each
+ * row carries the patient including their contact number, and no doctor
+ * relation, because the caller is the doctor.
+ */
+export async function getDoctorAppointments(
+  params: DoctorAppointmentsParams,
+): Promise<PaginatedData<DoctorAppointment>> {
+  const response = await apiClient<PaginatedApiResponse<DoctorAppointment>>(
+    "/appointment/doctor-appointments",
+    { params },
+  );
+  return { data: response.data, meta: response.meta };
+}
+
+/**
+ * Every appointment on the platform, for admins.
+ *
+ * Carries both the patient and the doctor, but the patient projection omits
+ * `contactNumber` — only the doctor's own list includes it.
+ */
+export async function getAllAppointments(
+  params: AllAppointmentsParams,
+): Promise<PaginatedData<AllAppointment>> {
+  const response = await apiClient<PaginatedApiResponse<AllAppointment>>(
+    "/appointment/all-appointments",
+    { params },
+  );
+  return { data: response.data, meta: response.meta };
+}
+
+/**
+ * Advances an appointment through its lifecycle. Doctor-only.
+ *
+ * The backend enforces the transitions, not the UI: CONFIRMED may only go to
+ * ONGOING, ONGOING may only go to COMPLETED, and skipping a step is a 400
+ * (`"Confirmed appointment must be ongoing at first"`). Completed and cancelled
+ * rows are 403.
+ *
+ * Returns the bare updated appointment row with no relations, so it is of no use
+ * for refreshing a detail view — invalidate the list instead.
+ */
+export async function updateAppointmentStatus(
+  appointmentId: string,
+  payload: UpdateAppointmentStatusPayload,
+): Promise<Appointment> {
+  const response = await apiClient<ApiResponse<Appointment>>(
+    `/appointment/update-status/${appointmentId}`,
+    { method: "PATCH", body: payload },
   );
   return response.data;
 }

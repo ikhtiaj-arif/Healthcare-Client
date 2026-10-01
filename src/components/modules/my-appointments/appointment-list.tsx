@@ -18,7 +18,11 @@ import {
 } from "@/components/ui/table";
 import TablePagination from "@/components/ui/table-pagination";
 import { useGetMyAppointments, useListState } from "@/hooks";
-import type { Appointment, AppointmentStatus } from "@/types";
+import type {
+  Appointment,
+  AppointmentSortField,
+  AppointmentStatus,
+} from "@/types";
 import { APPOINTMENT_DETAIL_PARAM } from "./appointment-detail-sheet";
 import { CancelAppointmentDialog } from "./cancel-appointment-dialog";
 import { PayAppointmentButton } from "./pay-appointment-button";
@@ -75,12 +79,6 @@ function toStatusFilter(value: string): StatusFilter {
 }
 
 /** Mirrors APPOINTMENT_SORTABLE_FIELDS in Healthcare-Backend/src/app/utils/sort.ts. */
-type AppointmentSortField =
-  | "createdAt"
-  | "updatedAt"
-  | "status"
-  | "joiningTime"
-  | "serialNumber";
 
 function formatDateTime(value?: string | null) {
   if (!value) {

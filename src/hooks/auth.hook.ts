@@ -1,5 +1,7 @@
 import {
+  forgotPassword,
   getMe,
+  resetPassword,
   userLogin,
   userLogout,
   userRegistration,
@@ -7,6 +9,15 @@ import {
 } from "@/api";
 import { googleOAuth } from "@/providers/google-auth.provider";
 import { useMutation, useQuery } from "@tanstack/react-query";
+
+/**
+ * The signed-in user's own row, as returned by `GET /auth/me`.
+ *
+ * Exported because more than one feature mutates it: logging out and uploading a
+ * new profile picture both need to invalidate exactly this key, and a second
+ * hand-written `["user"]` literal would silently stop refreshing the avatar.
+ */
+export const USER_QUERY_KEY = ["user"] as const;
 
 export function useLogin() {
   return useMutation({
@@ -34,9 +45,25 @@ export function useGoogleOAuth() {
     mutationFn: googleOAuth,
   });
 }
+
+/**
+ * Both password-recovery steps are plain mutations with no cache to
+ * invalidate: neither endpoint reads or writes anything the `["user"]` query
+ * holds, and neither establishes a session.
+ */
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: forgotPassword,
+  });
+}
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: resetPassword,
+  });
+}
 export function useGetMe() {
   return useQuery({
-    queryKey: ["user"],
+    queryKey: USER_QUERY_KEY,
     queryFn: getMe,
     retry: false,
   });

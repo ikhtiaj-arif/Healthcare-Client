@@ -1,5 +1,22 @@
 import z from "zod";
 
+/**
+ * The password policy, in one place.
+ *
+ * Registration, login and password reset all enforce the same four
+ * requirements, and until now the rule was pasted verbatim into each schema. A
+ * shared object means the policy cannot drift between the three forms — and the
+ * backend enforces it identically, so this mirrors `auth.validation.ts` on the
+ * server rather than inventing a looser client rule.
+ */
+const PasswordSchema = z
+  .string()
+  .min(8, "Password Must Minimum 8 Characters Long.")
+  .regex(/[a-z]/, "Password must contain atleast 1 Lowercase Letter")
+  .regex(/[A-Z]/, "Password must contain atleast 1 Uppercase Letter")
+  .regex(/[0-9]/, "Password must contain atleast 1 Number")
+  .regex(/[^A-Za-z0-9]/, "Password must contain atleast 1 Special Character");
+
 export const PatientRegistrationZodSchema = z
   .object({
     name: z
@@ -7,17 +24,7 @@ export const PatientRegistrationZodSchema = z
       .min(3, "Name must atleast 3 characters long!!!")
       .max(50, "Name must be at most 50 characters long"),
     email: z.email("Not email!"),
-    password: z
-      .string()
-      .min(8, "Password Must Minimum 8 Characters Long.")
-      .regex(/[a-z]/, "Password must contain atleast 1 Lowercase Letter")
-      .regex(/[A-Z]/, "Password must contain atleast 1 Uppercase Letter")
-
-      .regex(/[0-9]/, "Password must contain atleast 1 Number")
-      .regex(
-        /[^A-Za-z0-9]/,
-        "Password must contain atleast 1 Special Character",
-      ),
+    password: PasswordSchema,
     confirmPassword: z.string().min(1, "please confirm your password"),
 
     contactNumber: z
@@ -52,12 +59,30 @@ export const PatientVerifyEmailZodSchema = z.object({
 
 export const LoginSchema = z.object({
   email: z.email(),
-  password: z
-    .string()
-    .min(8, "Password Must Minimum 8 Characters Long.")
-    .regex(/[a-z]/, "Password must contain atleast 1 Lowercase Letter")
-    .regex(/[A-Z]/, "Password must contain atleast 1 Uppercase Letter")
-
-    .regex(/[0-9]/, "Password must contain atleast 1 Number")
-    .regex(/[^A-Za-z0-9]/, "Password must contain atleast 1 Special Character"),
+  password: PasswordSchema,
 });
+
+/** Mirrors the server's `ForgotPasswordZodSchema` — email only. */
+export const ForgotPasswordSchema = z.object({
+  email: z.email("Not email!!"),
+});
+
+/**
+ * Mirrors the server's `ResetPasswordZodSchema`.
+ *
+ * `confirmPassword` is client-only: the backend never receives it, and the
+ * server zod strips unknown keys, so including it here cannot change what is
+ * sent. The OTP is exactly 6 characters — the server generates it with
+ * `crypto.randomInt(100000, 1000000)`, so it is always zero-padded to 6.
+ */
+export const ResetPasswordSchema = z
+  .object({
+    email: z.email("Not email!!"),
+    otp: z.string().length(6, "OTP must be 6 characters long"),
+    newPassword: PasswordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Password do not match",
+    path: ["confirmPassword"],
+  });

@@ -9,15 +9,19 @@ import {
   doctorAccountApprovalRejection,
   getAllDoctors,
   getAllPublicDoctors,
+  getAvailableDoctorsToday,
   getPublicDoctorProfile,
   getTodayScheduleByDoctor,
+  updateMyDoctorProfile,
   verifyDoctorAccount,
 } from "@/api/doctor.api";
 import type {
+  AvailableDoctorsParams,
   DoctorParams,
   DoctorVerificationStatus,
   PublicDoctorParams,
 } from "@/types";
+import { USER_QUERY_KEY } from "./auth.hook";
 import { SCHEDULES_QUERY_KEY } from "./schedule.hook";
 
 /**
@@ -127,5 +131,38 @@ export function useGetTodayScheduleByDoctor(params: {
   return useQuery({
     queryKey: [...SCHEDULES_QUERY_KEY, "today", params],
     queryFn: () => getTodayScheduleByDoctor(params),
+  });
+}
+
+/**
+ * Keyed under `"public"` alongside the other public doctor lists rather than
+ * under a new segment, because it is the same audience: an anonymous visitor
+ * browsing doctors. A future change to the public directory can invalidate all
+ * three with one prefix.
+ */
+export function useGetAvailableDoctorsToday(params: AvailableDoctorsParams) {
+  return useQuery({
+    queryKey: [...DOCTORS_QUERY_KEY, "public", "available-today", params],
+    queryFn: () => getAvailableDoctorsToday(params),
+  });
+}
+
+/**
+ * Invalidates both key families on success.
+ *
+ * `USER_QUERY_KEY` because `/auth/me` is what the dashboard shell reads, and it
+ * carries the `doctor` summary — so a saved bio or consultation fee has to
+ * reappear in the sidebar without a reload. The doctors prefix covers the public
+ * directory and available-today lists, which show the same fields.
+ */
+export function useUpdateMyDoctorProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateMyDoctorProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: DOCTORS_QUERY_KEY });
+    },
   });
 }
