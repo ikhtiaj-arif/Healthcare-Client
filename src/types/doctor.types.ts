@@ -124,12 +124,22 @@ export interface PublicDoctorProfile {
   createdAt: string;
 }
 
+/**
+ * Query params for `GET /doctor/public/all-doctors`.
+ *
+ * `sortBy` is the plain `DOCTOR_SORTABLE_FIELDS` allow-list here — unlike
+ * available-today, this endpoint does not sort a nested relation, so it gets the
+ * doctor union only.
+ *
+ * `searchTerm` spans name, specialization **and** qualifications; `specialization`
+ * is `equals` + `insensitive`.
+ */
 export interface PublicDoctorParams {
   page?: number;
   limit?: number;
   searchTerm?: string;
   specialization?: string;
-  sortBy?: string;
+  sortBy?: DoctorSortField;
   sortOrder?: "desc" | "asc";
 }
 

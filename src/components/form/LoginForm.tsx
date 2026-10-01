@@ -56,8 +56,13 @@ export function LoginForm({
   const { mutate: login, isPending: loginPending } = useLogin();
   const form = useForm({
     defaultValues: {
-      email: "superadmin@gmail.com",
-      password: "Super@admin1234",
+      // Left empty deliberately. These fields used to ship the super-admin's
+      // credentials as `defaultValues`, which put a working super-admin login in
+      // the production bundle for anyone to read in the JS source. Never seed
+      // real credentials into a client component — if you need a test account,
+      // put it in a git-ignored env var.
+      email: "",
+      password: "",
     },
     validators: {
       onSubmit: LoginSchema,
@@ -140,7 +145,7 @@ export function LoginForm({
                       <div className="flex items-center">
                         <FieldLabel htmlFor="password">Password</FieldLabel>
                         <Link
-                          href="#"
+                          href="/forgot-password"
                           className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                         >
                           Forgot your password?
