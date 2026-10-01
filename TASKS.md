@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 39 / 112 complete
+**Progress:** 42 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -229,11 +229,20 @@ Response is `data: null` — no expiry is returned, hence the hardcoded 5 minute
 which does not exist yet and will 404.
 
 ### B2 — Reset password
-- [ ] `src/components/form/ResetPasswordForm.tsx` — email + 6-char OTP + new password, reusing
+- [x] `src/components/form/ResetPasswordForm.tsx` — email + 6-char OTP + new password, reusing
   the `InputOTP` pattern from `VerifyAccountForm.tsx`
-- [ ] `src/app/(public)/(authentication)/reset-password/page.tsx` (`?email=` carried across)
-- [ ] on success route to `/login` — the backend does **not** revoke live cookies
+- [x] `src/app/(public)/(authentication)/reset-password/page.tsx` (`?email=` carried across)
+  — **needs** the Suspense boundary, because this form does call `useSearchParams`
+- [x] on success route to `/login` — the backend does **not** revoke live cookies
 Routes: `POST /auth/reset-password`
+
+No `?email=` → `router.replace("/forgot-password")` rather than the dead-end
+`router.push("/")` that `VerifyAccountForm` uses, since this page is only
+reachable with an email in hand.
+`confirmPassword` is client-only; the backend never receives it (see `ResetPasswordSchema`).
+Distinct OTP failures, both 400: "Invalid OTP" (missing/expired Redis key) vs
+"OTP does not match". Worth telling apart — the first means *request a new code*,
+the second means *retype the same one*.
 
 ### B3 — Profile page, all roles
 - [ ] `src/app/(dashboard)/dashboard/profile/page.tsx`, `.../doctor/profile/page.tsx`,
