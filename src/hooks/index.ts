@@ -3,6 +3,7 @@ export * from "./auth.hook";
 export { default as useDebounce } from "./debounce.hook";
 export * from "./doctor.hook";
 export * from "./payment.hook";
+export * from "./prescription.hook";
 export * from "./schedule.hook";
 export { useListState } from "./use-list-state.hook";
 export * from "./user.hook";

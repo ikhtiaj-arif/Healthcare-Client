@@ -4,6 +4,7 @@ export * from "./auth.type";
 export * from "./doctor.types";
 export * from "./doctor-approval.types";
 export * from "./payment.type";
+export * from "./prescription.type";
 export * from "./schedule.types";
 export * from "./sidebar.type";
 export * from "./user.type";

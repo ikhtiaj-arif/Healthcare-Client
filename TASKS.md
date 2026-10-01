@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 23 / 112 complete
+**Progress:** 28 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -165,15 +165,22 @@ Confirmed: only filter is `patientEmail` (contains + insensitive). No `status` f
 `gatewayResponse` arrives on the wire but is deliberately undeclared in `Payment`.
 
 ### A7 — Prescriptions
-- [ ] `src/api/prescription.api.ts` (new): `createPrescription`, `getPrescriptionByAppointmentId`
-- [ ] `src/types/prescription.type.ts` (new): `CreatePrescriptionPayload`, `MedicineInput`,
-  `PrescriptionResult` (`{ appointment, prescription }` — the URL only, **no** medicines array)
-- [ ] `src/validation/prescription.validation.ts` (new): `prescriptionSchema` (findings ≥ 5,
-  medicines min 1, each `{name, dosage, duration, instructions?}`)
-- [ ] `src/hooks/prescription.hook.ts` (new): `PRESCRIPTIONS_QUERY_KEY`,
-  `useCreatePrescription`, `useGetPrescription`
-- [ ] register in all four `index.ts` barrels
+- [x] `src/api/prescription.api.ts` (new): `createPrescription`, `getPrescriptionByAppointmentId`
+- [x] `src/types/prescription.type.ts` (new): `CreatePrescriptionPayload`, `MedicineInput`,
+  `PrescriptionResult` (`{ appointment, prescription }` — the URL only, **no** medicines array),
+  `CreatedPrescription`
+- [x] `src/validation/prescription.validation.ts` (new): `prescriptionSchema` (findings ≥ 5,
+  medicines min 1, each `{name, dosage, duration, instructions?}`), `medicineSchema`,
+  `PrescriptionFormValues`, `EMPTY_MEDICINE`
+- [x] `src/hooks/prescription.hook.ts` (new): `PRESCRIPTIONS_QUERY_KEY`,
+  `useCreatePrescription` (invalidates `APPOINTMENTS_QUERY_KEY` — the update sets
+  `prescriptionUrl` on the appointment), `useGetPrescription` (`retry: 0`, see below)
+- [x] register in all four `index.ts` barrels
 Routes: `POST /prescription/create-prescription`, `GET /prescription/:appointmentId`
+Two rules are **not** zod and cannot be mirrored client-side: 400 unless the
+appointment is COMPLETED, and 409 if one already exists (no edit or re-issue path).
+`GET` 404s with "No Prescription Has Been Written Yet" for the common empty case —
+hence `retry: 0`, since the default 3 would stall the empty state.
 
 ### A8 — Analytics
 - [ ] `src/api/analytics.api.ts` (new): `getPatientAnalytics`, `getDoctorAnalytics`,
