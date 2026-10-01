@@ -1,5 +1,7 @@
 import {
+  forgotPassword,
   getMe,
+  resetPassword,
   userLogin,
   userLogout,
   userRegistration,
@@ -32,6 +34,22 @@ export function useLogout() {
 export function useGoogleOAuth() {
   return useMutation({
     mutationFn: googleOAuth,
+  });
+}
+
+/**
+ * Both password-recovery steps are plain mutations with no cache to
+ * invalidate: neither endpoint reads or writes anything the `["user"]` query
+ * holds, and neither establishes a session.
+ */
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: forgotPassword,
+  });
+}
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: resetPassword,
   });
 }
 export function useGetMe() {
