@@ -57,6 +57,42 @@ export interface PaymentParams {
   sortOrder?: "asc" | "desc";
 }
 
+/**
+ * A row in the admin list of every payment on the platform.
+ *
+ * An alias rather than a copy: `getAllPayments` selects the same relations as
+ * `my-payments` — the appointment with its doctor and full schedule, and **no
+ * patient** — so the shapes are identical. It keeps its own name because the two
+ * endpoints differ in role and filters, and E2 should not quietly widen it by
+ * assuming a patient relation is there.
+ *
+ * `gatewayResponse` is deliberately absent from `Payment`. The column is
+ * `Json?` on the model and the query does not select it away, so it does arrive
+ * on the wire holding the whole raw bKash payload — it is simply never declared,
+ * which keeps it out of rendered detail views. Do not add it to satisfy a type
+ * error; see E2.
+ */
+export type AllPaymentItem = PaymentListItem;
+
+/**
+ * Query params for `GET /payment/all-payments`.
+ *
+ * `patientEmail` is `contains` + `insensitive`, matched through the appointment
+ * relation — not an exact match like `doctorEmail` is on the appointment admin
+ * list.
+ *
+ * There is **no** `status` filter on this endpoint: the service reads only
+ * `patientEmail`, so a status param would be silently ignored and the table
+ * would look filtered while showing everything.
+ */
+export interface AllPaymentsParams {
+  page?: number;
+  limit?: number;
+  patientEmail?: string;
+  sortBy?: PaymentSortField;
+  sortOrder?: "asc" | "desc";
+}
+
 export type PaymentSortField =
   | "createdAt"
   | "updatedAt"

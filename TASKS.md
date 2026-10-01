@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 20 / 112 complete
+**Progress:** 23 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -156,10 +156,13 @@ Routes: `GET /schedule/all-schedules`, `PATCH /schedule/update-schedule/:schedul
 Note: `update-schedule` resets `availableSlots = totalSlots`, refilling a booked slot.
 
 ### A6 — All payments
-- [ ] `src/api/payment.api.ts`: `getAllPayments`
-- [ ] `src/types/payment.type.ts`: `AllPaymentItem`, `AllPaymentsParams`
-- [ ] `src/hooks/payment.hook.ts`: `useGetAllPayments`
+- [x] `src/api/payment.api.ts`: `getAllPayments`
+- [x] `src/types/payment.type.ts`: `AllPaymentItem` (alias of `PaymentListItem` — the backend
+  selects identical relations, so a copy would only drift), `AllPaymentsParams`
+- [x] `src/hooks/payment.hook.ts`: `useGetAllPayments` (own `"all"` key segment)
 Routes: `GET /payment/all-payments`
+Confirmed: only filter is `patientEmail` (contains + insensitive). No `status` filter exists.
+`gatewayResponse` arrives on the wire but is deliberately undeclared in `Payment`.
 
 ### A7 — Prescriptions
 - [ ] `src/api/prescription.api.ts` (new): `createPrescription`, `getPrescriptionByAppointmentId`
