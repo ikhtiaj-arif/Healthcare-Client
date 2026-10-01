@@ -42,10 +42,25 @@ export interface CreateSchedulePayload {
   meetingLink: string;
 }
 
+/**
+ * Mirrors SCHEDULE_SORTABLE_FIELDS in Healthcare-Backend/src/app/utils/sort.ts.
+ *
+ * A value outside it is a 400 from `parseSort`, so this union is the only
+ * enforcement — the backend does no validation of its own here.
+ */
+export type ScheduleSortField =
+  | "createdAt"
+  | "updatedAt"
+  | "startDateTime"
+  | "endDateTime"
+  | "totalSlots"
+  | "availableSlots"
+  | "status";
+
 export interface ScheduleParams {
   status?: ScheduleStatus;
   page?: number;
   limit?: number;
-  sortBy?: string;
+  sortBy?: ScheduleSortField;
   sortOrder?: "desc" | "asc";
 }
