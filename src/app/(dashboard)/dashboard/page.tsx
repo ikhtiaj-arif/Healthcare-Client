@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PatientAnalyticsCards } from "@/components/modules/analytics/patient-analytics-cards";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -8,9 +9,8 @@ import { PageHeader } from "@/components/ui/page-header";
  * This is the target of the post-login redirect for PATIENT in Header.tsx, so
  * it cannot be a bare text stub: signing in has to land somewhere real.
  *
- * Deliberately just links rather than a stats grid. The numbers are available
- * from GET /analytics/patient, which is Phase 3 work, and faking them here
- * would mean writing them twice.
+ * Links stay under the analytics cards so a patient can still jump to
+ * appointments and the doctor directory.
  */
 const PatientDashboardPage = () => {
   return (
@@ -19,6 +19,8 @@ const PatientDashboardPage = () => {
         title="Dashboard"
         description="Your appointments, payments and profile in one place."
       />
+
+      <PatientAnalyticsCards />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Button

@@ -1,7 +1,11 @@
 "use client";
 
+import { useForm } from "@tanstack/react-form";
 import { cn } from "cn";
-
+import { Eye, EyeClosed } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,15 +22,10 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useForm } from "@tanstack/react-form";
-import { LoginSchema } from "@/validation";
-import React from "react";
-import { Eye, EyeClosed } from "lucide-react";
 import { useLogin } from "@/hooks";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "../ui/toast";
+import { LoginSchema } from "@/validation";
 import { Spinner } from "../ui/spinner";
+import { toast } from "../ui/toast";
 import { GoogleLoginButton } from "./GoogleLogin";
 
 /**
@@ -74,7 +73,7 @@ export function LoginForm({
       };
 
       login(loginData, {
-        onSuccess: (res) => {
+        onSuccess: (_res) => {
           toast.add({
             title: "Login Successful",
             description: "Welcome Back",
@@ -88,7 +87,6 @@ export function LoginForm({
             description: err.message || "An error occurred",
             type: "error",
           });
-          console.log(err);
         },
       });
     },

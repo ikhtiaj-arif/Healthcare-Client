@@ -1,3 +1,13 @@
+import {
+  ArrowLeft,
+  BriefcaseBusiness,
+  GraduationCap,
+  ScrollText,
+  Stethoscope,
+  Wallet,
+} from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getAllPublicDoctors, getPublicDoctorProfile } from "@/api";
 import DoctorBooking from "@/components/modules/doctors/doctor-bookings";
 import { Button } from "@/components/ui/button";
@@ -8,15 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ArrowLeft,
-  BriefcaseBusiness,
-  GraduationCap,
-  ScrollText,
-  Stethoscope,
-  Wallet,
-} from "lucide-react";
-import Link from "next/link";
 
 /**
  * Page size for the build-time crawl. This used to be 1, which made the loop
@@ -41,12 +42,26 @@ export async function generateStaticParams() {
     );
   });
 
-  const totalPages = first?.meta?.totalPages ?? 1;
+  if (typeof first?.meta?.totalPages !== "number") {
+    throw new Error(
+      "generateStaticParams got a 200 from the doctor API without meta.totalPages. " +
+        "Stopping so the build does not ship only the first page of doctors.",
+    );
+  }
 
+  const totalPages = first.meta.totalPages;
   const all = [...first.data];
 
   for (let page = 2; page <= totalPages; page++) {
-    const data = await getAllPublicDoctors({ page, limit: CRAWL_PAGE_SIZE });
+    const data = await getAllPublicDoctors({
+      page,
+      limit: CRAWL_PAGE_SIZE,
+    }).catch((error: unknown) => {
+      throw new Error(
+        `generateStaticParams failed while loading doctor page ${page} of ${totalPages}. ` +
+          `Underlying error: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    });
     all.push(...data.data);
   }
 
@@ -57,7 +72,9 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const data = await getPublicDoctorProfile(id);
   const doctor = data?.data || undefined;
 
-  if (!doctor) return <p>No doctor found with this data</p>;
+  if (!doctor) {
+    notFound();
+  }
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">

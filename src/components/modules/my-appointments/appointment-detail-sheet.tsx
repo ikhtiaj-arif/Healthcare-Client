@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AppointmentDetail } from "@/components/modules/my-appointments/appointment-detail";
 import {
   Sheet,
@@ -42,6 +42,7 @@ export function readAppointmentDetail(
  */
 export function AppointmentDetailSheet() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const appointmentId = readAppointmentDetail(searchParams);
 
@@ -52,12 +53,7 @@ export function AppointmentDetailSheet() {
     const next = new URLSearchParams(searchParams.toString());
     next.delete(APPOINTMENT_DETAIL_PARAM);
     const query = next.toString();
-    router.replace(
-      query
-        ? `/dashboard/my-appointments?${query}`
-        : "/dashboard/my-appointments",
-      { scroll: false },
-    );
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
 
   return (

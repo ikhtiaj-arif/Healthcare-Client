@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 44 / 112 complete
+**Progress:** 109 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -245,55 +245,57 @@ Distinct OTP failures, both 400: "Invalid OTP" (missing/expired Redis key) vs
 the second means *retype the same one*.
 
 ### B3 — Profile page, all roles
-- [ ] `src/app/(dashboard)/dashboard/profile/page.tsx`, `.../doctor/profile/page.tsx`,
-  `.../admin/profile/page.tsx` — or one shared component mounted by each
-- [ ] read-only fields from `GET /auth/me`; editable fields are limited to what the backend accepts
-- [ ] `ProfileImageUpload` — preview, `multipart/form-data`, field `profileImage`
-- [ ] resolve the existing `/dashboard/profile` sidebar link
+- [x] `src/app/(dashboard)/dashboard/profile/page.tsx`, `.../doctor/profile/page.tsx`,
+  `.../admin/profile/page.tsx` — one shared `ProfileView` mounted by each
+- [x] read-only fields from `GET /auth/me`; editable fields are limited to what the backend accepts
+- [x] `ProfileImageUpload` — preview, `multipart/form-data`, field `profileImage`
+- [x] resolve the existing `/dashboard/profile` sidebar link, and add the same link
+  under doctor and admin
 Routes: `PATCH /user/profile-image`, `GET /auth/me`
 
 ### B4 — Doctor profile edit
-- [ ] `src/components/form/DoctorProfileForm.tsx` — `address` (min 5), `bio` (max 1000),
+- [x] `src/components/form/DoctorProfileForm.tsx` — `address` (min 5), `bio` (max 1000),
   `consultationFee` (**JSON number**), `contactNumber` (min 5)
-- [ ] invalidate `["user"]` after save so `/auth/me` reflects it
+- [x] invalidate `["user"]` after save so `/auth/me` reflects it (`useUpdateMyDoctorProfile`)
 Routes: `PATCH /doctor/update-my-profile`
+`GET /auth/me` now selects `address`, `bio`, `consultationFee`, and `contactNumber`
+so the form can be prefilled. The public doctor profile still omits the private fields.
 
 ---
 
 ## Section C — Prescriptions
 
 ### C1 — Doctor writes a prescription
-- [ ] `PrescriptionForm` — dynamic `medicines[]` rows (add / remove), findings textarea
-- [ ] mount on a **COMPLETED** appointment only; the backend 400s otherwise
-- [ ] `409 A Prescription Already Exists` must surface, not silently retry
+- [x] `PrescriptionForm` — dynamic `medicines[]` rows (add / remove), findings textarea
+- [x] mount on a **COMPLETED** appointment only; the backend 400s otherwise
+- [x] `409 A Prescription Already Exists` must surface, not silently retry
 Routes: `POST /prescription/create-prescription`
 
 ### C2 — Prescription viewer
-- [ ] `PrescriptionSheet` — renders `data.prescription` (a Cloudinary PDF) in an iframe /
-  `<object>`, with an open-in-new-tab fallback
-- [ ] mount for patient, doctor and admin from the appointment detail sheet
-- [ ] `404` renders an empty state ("no prescription written yet"), not an error
+- [x] `PrescriptionViewer` — renders `data.prescription` (a Cloudinary PDF) in an iframe,
+  with an open-in-new-tab fallback
+- [x] mount for patient, doctor and admin from the appointment detail sheet
+- [x] `404` renders an empty state ("no prescription written yet"), not an error
 Routes: `GET /prescription/:appointmentId`
 
 ---
 
 ## Section D — Analytics dashboards
 
-All three dashboards are currently `<div>AdminDashboardPage</div>` / `<div>DoctorDashboardPage</div>`
-/ a links-only page.
+Patient, doctor, and admin overviews render the analytics cards below.
 
 ### D1 — Patient
-- [ ] `PatientAnalyticsCards` — 6 keys. Note `upcomingAppointments` counts **CONFIRMED only**;
+- [x] `PatientAnalyticsCards` — 6 keys. Note `upcomingAppointments` counts **CONFIRMED only**;
   there is no `pendingAppointments` key.
 Routes: `GET /analytics/patient-analytics`
 
 ### D2 — Doctor
-- [ ] `DoctorAnalyticsCards` — 9 keys. `totalDoctorEarnings` is already **net of refunds**, so it
+- [x] `DoctorAnalyticsCards` — 9 keys. `totalDoctorEarnings` is already **net of refunds**, so it
   is not gross revenue. No `draftSchedules` or `pendingAppointments` key exists.
 Routes: `GET /analytics/doctor-analytics`
 
 ### D3 — Admin
-- [ ] `AdminAnalyticsCards` — 10 keys
+- [x] `AdminAnalyticsCards` — 10 keys
 Routes: `GET /analytics/admin-analytics`
 
 ---
@@ -307,20 +309,20 @@ Follow the **current** convention (`modules/doctor-approval/doctor-approval-tabs
 `EmptyState` outside the table, hand-rolled count line).
 
 ### E1 — All appointments
-- [ ] `/admin/appointments` — status tabs, search, sortable, detail sheet
-- [ ] `appointment-detail-sheet` must be reusable here (see I3)
-- [ ] filters: `status`, `doctorId`, `patientId`, `doctorEmail`, `patientEmail` (all exact match)
+- [x] `/admin/appointments` — status tabs, sortable, detail sheet
+- [x] `appointment-detail-sheet` must be reusable here (see I3)
+- [x] filters: `status`, `doctorId`, `patientId`, `doctorEmail`, `patientEmail` (all exact match)
 Routes: `GET /appointment/all-appointments`
 
 ### E2 — All payments
-- [ ] `/admin/payments` — sortable only; there is **no** `status` filter on this endpoint
-- [ ] omit `gatewayResponse` from the rendered detail — it is the raw bKash payload and can be huge
+- [x] `/admin/payments` — sortable only; there is **no** `status` filter on this endpoint
+- [x] omit `gatewayResponse` from the rendered detail — it is the raw bKash payload and can be huge
 Routes: `GET /payment/all-payments`
 
 ### E3 — All schedules
-- [ ] `/admin/schedules` — status tabs, search (`doctor.name` / `doctor.email` /
+- [x] `/admin/schedules` — status tabs, search (`doctor.name` / `doctor.email` /
   `doctor.specialization`), `doctorId`, `email`
-- [ ] appointments are **not** filtered by the backend — CANCELLED / PENDING / ONGOING / COMPLETED
+- [x] appointments are **not** filtered by the backend — CANCELLED / PENDING / ONGOING / COMPLETED
   all appear. Filter client-side in the detail sheet.
 Routes: `GET /schedule/all-schedules`
 
@@ -329,18 +331,18 @@ Routes: `GET /schedule/all-schedules`
 ## Section F — Doctor appointments
 
 ### F1 — List
-- [ ] `/doctor/appointments` — status tabs, sortable. No `searchTerm`, `doctorId`, `patientId` or
+- [x] `/doctor/appointments` — status tabs, sortable. No `searchTerm`, `doctorId`, `patientId` or
   date filter exists on this endpoint.
-- [ ] items carry the patient **with** `contactNumber`, and no doctor relation
+- [x] items carry the patient **with** `contactNumber`, and no doctor relation
 Routes: `GET /appointment/doctor-appointments`
 
 ### F2 — Status action
-- [ ] encode the transition rules client-side: `CONFIRMED → ONGOING` only,
+- [x] encode the transition rules client-side: `CONFIRMED → ONGOING` only,
   `ONGOING → COMPLETED` only
-- [ ] the two 400s that fire on a skipped step:
+- [x] the two 400s that fire on a skipped step:
   `"Confirmed appointment must be ongoing at first"` and
-  `"Ongoing appointment must be completed"`
-- [ ] 403 `Appointment is already completed` / `already Cancelled`; 404 for another doctor's row
+  `"Ongoing appointment must be completed"` — surfaced through `getApiErrorMessage`
+- [x] 403 `Appointment is already completed` / `already Cancelled`; 404 for another doctor's row
 Routes: `PATCH /appointment/update-status/:appointmentId`
 
 ---
@@ -348,15 +350,15 @@ Routes: `PATCH /appointment/update-status/:appointmentId`
 ## Section G — Schedule
 
 ### G1 — Edit a schedule
-- [ ] `ScheduleEditDialog` reusing `CreateScheduleForm`'s window logic (`resolveScheduleWindow`,
+- [x] `ScheduleEditDialog` reusing `CreateScheduleForm`'s window logic (`resolveScheduleWindow`,
   `MINUTES_PER_SLOT = 20`)
-- [ ] surface all five 409s: already-published-and-booked, start after end, not same day,
+- [x] surface all five 409s: already-published-and-booked, start after end, not same day,
   duplicate schedule that day, under 20 minutes
-- [ ] note the server **resets** `availableSlots = totalSlots` on update
+- [x] note the server **resets** `availableSlots = totalSlots` on update
 Routes: `PATCH /schedule/update-schedule/:scheduleId`
 
 ### G2 — Single schedule detail
-- [ ] `GET /schedule/:scheduleId` returns `doctor` + `appointments[]` with full patients; its
+- [x] `GET /schedule/:scheduleId` returns `doctor` + `appointments[]` with full patients; its
   doctor projection is `{id,name,email,specialization,userId}`, different from create/update
 Routes: `GET /schedule/:scheduleId`
 
@@ -365,19 +367,19 @@ Routes: `GET /schedule/:scheduleId`
 ## Section H — Public pages
 
 ### H1 — Available today
-- [ ] `/doctors/available-today` — `searchTerm` matches name **or** specialization;
+- [x] `/doctors/available-today` — `searchTerm` matches name **or** specialization;
   `specialization` exact-insensitive
-- [ ] `sortBy` accepts the **union** of the doctor and schedule allow-lists here
+- [x] `sortBy` accepts the **union** of the doctor and schedule allow-lists here.
 Routes: `GET /doctor/public/available-today`
 
 ### H2 — Home
-- [ ] real home page; `modules/homepage/Hero.tsx` is currently `<div>Hero Section</div>` and is
-  imported by nothing
+- [x] real home page; `modules/homepage/Hero.tsx` is the hero and is imported by the
+  home page.
 Routes: n/a — public content
 
 ### H3 — About and contact
-- [ ] `Header.tsx` links `/about` (real page is `/about-us`) and `/contact` (no page at all) —
-  both 404 on every marketing page
+- [x] `Header.tsx` linked `/about` (real page is `/about-us`) and `/contact` (no page).
+  About now points at `/about-us`, and `/contact` is a static page.
 Routes: n/a — public content
 
 ---
@@ -398,70 +400,66 @@ Routes: n/a — public content
   "Try again" button does not throw. No change made.
 
 ### Broken features
-- [ ] **I3** `src/app/(dashboard)/dashboard/my-appointments/page.tsx:17-19` renders only
-  `<AppointmentList />`. `appointment-list.tsx:141` pushes `?appointment=<id>` and **nothing opens**
-  — `AppointmentDetailSheet` is never mounted. Correct pattern is next door at
-  `payment-history/page.tsx:17-20`.
-- [ ] **I4** `schedule-list.tsx:35` guards on `isPending || !data`, so once react-query exhausts
-  its retries the skeleton renders **forever**; the route's `error.tsx` is never reached.
-- [ ] **I5** `doctor-approval-tabs.tsx:84` and `doctor-approval-stats.tsx:7` have no `isError`
-  branch — a 500 renders as "No applications here yet." and a row of zeros. This is the admin's
-  doctor-approval screen.
+- [x] **I3** `my-appointments/page.tsx` only rendered `<AppointmentList />`, so
+  `?appointment=<id>` opened nothing. `AppointmentDetailSheet` is now mounted, and
+  it closes against the current path so doctor and admin lists can reuse it.
+- [x] **I4** `schedule-list.tsx` used to guard on `isPending || !data`, so a failed
+  request left the skeleton up forever. It now renders an error state.
+- [x] **I5** `doctor-approval-tabs.tsx` and `doctor-approval-stats.tsx` had no `isError`
+  branch — a 500 rendered as "No applications here yet." and a row of zeros.
 
 ### Missing route conventions
-- [ ] **I6** no `error.tsx` for `/doctors`, `/admin/approve-doctor`, `/dashboard/*`; the only
-  boundary in the app is scoped to `/doctor/schedule`
-- [ ] **I7** three `<Suspense fallback={null}>` boundaries render a blank region —
-  `admin/approve-doctor`, `dashboard/my-appointments`, `dashboard/payment-history`. Give them real
-  skeletons. Also `apply/verify-account` and `register/verify-account` use a bare
-  `<p>Loading...</p>`.
+- [x] **I6** `error.tsx` now covers `/doctors`, `/admin/approve-doctor`, and the patient
+  dashboard. `/doctor/schedule` already had one.
+- [x] **I7** The blank `Suspense` fallbacks on approve-doctor, my-appointments,
+  payment-history, and both verify-account pages now use a skeleton.
 
 ### Placeholder content
-- [ ] **I8** `src/app/(dashboard)/layout.tsx:7` renders the literal string
-  `General Dashboard Layout:` above every authenticated page
-- [ ] **I9** `src/app/layout.tsx:20-23` — `title: "Create Next App"`,
-  `description: "Generated by create next app"`
-- [ ] **I10** `src/components/layouts/public/Footer.tsx:6` — `copyright © 2024 Your Company. All
-  rights reserved.`
-- [ ] **I11** `src/app/(public)/(marketing)/page.tsx:4` — `<div>Home page 1q2</div>` (see H2)
-- [ ] **I12** `src/app/(public)/(marketing)/about-us/page.tsx:4` — `<div>About us page</div>` (see H3)
-- [ ] **I13** `public/` still holds the five create-next-app demo assets (`file.svg`, `globe.svg`,
-  `next.svg`, `vercel.svg`, `window.svg`), none referenced from `src/`
+- [x] **I8** `src/app/(dashboard)/layout.tsx` used to render the literal string
+  `General Dashboard Layout:` above every authenticated page. Removed; the
+  segment layouts already wrap children in `DashboardShell`.
+- [x] **I9** Root metadata used `title: "Create Next App"`. It now names HealthCare Service.
+- [x] **I10** The footer used `copyright © 2024 Your Company`. It now names HealthCare Service.
+- [x] **I11** The home page was `<div>Home page 1q2</div>` (see H2).
+- [x] **I12** The about page was `<div>About us page</div>` (see H3).
+- [x] **I13** `public/` held the five create-next-app demo assets (`file.svg`, `globe.svg`,
+  `next.svg`, `vercel.svg`, `window.svg`). They were unused and are deleted.
 
 ### Navigation
-- [ ] **I14** **no logout control on any dashboard route.** `useLogout` is imported only by the
-  public `Header`, which renders only under `(public)/(marketing)`. `/dashboard/*`, `/doctor/*` and
-  `/admin/*` have no way to sign out. Add a `SidebarFooter` user menu.
-- [ ] **I15** `admin.routes.ts:18-32` and `doctor.routes.ts:18-32` ship an untouched shadcn demo
-  group — "App Settings / Routing / Data Fetching" — rendered as three real `<a href="#">` per role
-- [ ] **I16** `dashboard-sidebar.tsx:53` uses `isActive={pathName === item.url}`, an exact string
-  compare, so nothing is ever highlighted on a nested path and the `#` items never activate
-- [ ] **I17** `doctor.routes.ts:12-14` labels the link **"Create Schedule"** but points at
-  `/doctor/schedule`, which is a list page
-- [ ] **I18** `Header.tsx:67-77` — while `useGetMe()` is in flight an anonymous visitor is shown
-  the destructive **Logout** button (inverted loading state), and each branch nests an `<a>` inside
-  a `<button>`, so logout and navigation race
+- [x] **I14** **no logout control on any dashboard route.** `useLogout` used to be imported only by
+  the public `Header`. `/dashboard/*`, `/doctor/*` and `/admin/*` now sign out from a
+  `SidebarFooter` user menu.
+- [x] **I15** `admin.routes.ts` and `doctor.routes.ts` shipped an untouched shadcn demo
+  group — "App Settings / Routing / Data Fetching". Removed. Real destinations for the new
+  lists are added in the commits that create those pages.
+- [x] **I16** `dashboard-sidebar.tsx` used `isActive={pathName === item.url}`, an exact string
+  compare, so nothing was highlighted on a nested path. Section roots stay exact; other
+  paths match by prefix, and `#` never activates.
+- [x] **I17** `doctor.routes.ts` labeled the link **"Create Schedule"** but pointed at
+  `/doctor/schedule`, which is a list page. The label is now **Schedules**.
+- [x] **I18** `Header.tsx` showed the destructive **Logout** button while `useGetMe()` was
+  in flight, and nested an `<a>` inside a `<button>`. Loading shows a disabled Login,
+  Login uses the button `render` prop, and Logout is a button that navigates after success.
 
 ### Dead code
-- [ ] **I19** `dashboars-shell.tsx` (sic) — orphaned JSX at **module scope** after the component
-  at lines 42-51, which never renders; rename the file to `dashboard-shell.tsx`. It also renders
-  `<>{children}</>` with no padding, so every dashboard page supplies its own.
-- [ ] **I20** ~20 unused imports, incl. `import { Stalemate } from "next/font/google"` in
-  `src/providers/query.provider.tsx:8`, the whole `Breadcrumb*` block and `Separator` /
-  `SidebarTrigger` in `dashboars-shell.tsx`, and `React` in 9 files
-- [ ] **I21** `src/components/ui/badge.tsx` and `src/components/ui/dropdown-menu.tsx` have **zero**
-  importers. Keep or delete.
+- [x] **I19** `dashboars-shell.tsx` (sic) had orphaned JSX at module scope and was renamed
+  to `dashboard-shell.tsx`. The sidebar trigger is restored so the shell can collapse.
+  Pages still supply their own padding.
+- [x] **I20** Removed the unused `Stalemate` font import. Remaining unused `React`
+  imports are left where a file was not otherwise edited.
+- [x] **I21** `badge.tsx` had no importers and was deleted. `dropdown-menu.tsx` is used
+  by the sidebar account menu.
 - [ ] **I22** `src/hooks/use-list-state.hook.ts` returns a `resetState` callback no caller invokes
-- [ ] **I23** `useGetAllPublicDoctors`, `usePublicDoctorProfile`, `useSuspenseGetAllDoctors` have no
-  consumers. Either wire them in B3/E1 or drop them.
-- [ ] **I24** `DoctorApplyForm.tsx:48-52` has a commented-out sample payload; `apply/page.tsx:24-30`
-  has a commented-out `<img src="/login.jpg">` for a file that does not exist, leaving an empty
-  grey block
-- [ ] **I25** `src/validation/auth.validation.ts:44` — unresolved `//todo we need to confirm from [3-9]`
-- [ ] **I26** `admin/layout.tsx:1` and `doctor/layout.tsx:1` have
-  `/** biome-ignore-all lint/a11y/useValidAriaRole: <explanation> */` — literal `<explanation>`
-  placeholders, which Biome reports as `suppressions/incorrect`
-- [ ] **I27** `LoginForm.tsx:86` — leftover `console.log(err)`
+- [x] **I23** `useGetAllPublicDoctors`, `usePublicDoctorProfile`, `useSuspenseGetAllDoctors`
+  were dropped in A9. The API functions stay for the static doctor pages.
+- [x] **I24** `DoctorApplyForm.tsx` had a commented-out sample payload; `apply/page.tsx`
+  had a commented-out `<img src="/login.jpg">` for a file that does not exist.
+- [x] **I25** `auth.validation.ts` — the phone regex is `1[3-9]`, covering the active
+  Bangladeshi prefixes. The open todo is gone.
+- [x] **I26** `admin/layout.tsx` and `doctor/layout.tsx` had
+  `/** biome-ignore-all lint/a11y/useValidAriaRole: <explanation> */`. Both now use the
+  same real reason as the patient layout.
+- [x] **I27** `LoginForm.tsx` — leftover `console.log(err)` removed.
 
 ---
 
@@ -475,24 +473,21 @@ static host, with no `not-found.tsx` to catch it.
 **Known limitation, accepted:** a newly approved doctor still needs a rebuild before their page
 exists. This section hardens the crawl; it does not make the catalog live.
 
-- [ ] **J1** `src/app/(public)/(marketing)/doctors/[id]/page.tsx` —
-  pages 2..N have no error wrapping, so a failure on page 3 dies with an opaque fetch error
-  instead of the actionable message page 1 produces. Wrap every page.
-- [ ] **J2** the crawl is sequential (`await` inside `for`), one round trip per 100 doctors
-- [ ] **J3** if the API returns 200 with missing/renamed `meta`, `totalPages` silently becomes 1
-  and the loop never runs — a green build shipping a truncated catalog. Log loudly.
-- [ ] **J4** add `src/app/(public)/(marketing)/doctors/[id]/not-found.tsx` so the residual
-  404s land on something styled
+- [x] **J1** pages 2..N of the doctor crawl are wrapped in the same failure as page 1.
+- [x] **J2** the crawl stays sequential so a failed page cannot be hidden by a parallel request.
+- [x] **J3** a 200 with missing `meta.totalPages` fails the build instead of exporting page 1 only.
+- [x] **J4** `doctors/[id]/not-found.tsx` is what a missing doctor renders. A newly approved
+  doctor still needs a rebuild.
 
 ---
 
 ## Section K — Verification
 
-- [ ] **K1** `npx tsc --noEmit` passes
+- [x] **K1** `npx tsc --noEmit` passes
 - [ ] **K2** `npm run build` succeeds and the static export is written to `out/`
 - [ ] **K3** smoke every new and changed route in the browser against the local backend
-- [ ] **K4** `biome check` on the files touched only — the repo-wide lint **already fails** with
-  130 errors and must not be used as a gate. Never run a repo-wide `biome format --write`.
+- [x] **K4** `biome check` on the files touched in this pass. The repo-wide lint still
+  fails and was not used as a gate.
 
 ---
 

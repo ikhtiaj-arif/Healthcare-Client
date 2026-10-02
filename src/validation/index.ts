@@ -1,5 +1,6 @@
 export * from "./appointment.validation";
 export * from "./auth.validation";
 export * from "./doctor-application.validation";
+export * from "./doctor-profile.validation";
 export * from "./prescription.validation";
 export * from "./schedule.validation";

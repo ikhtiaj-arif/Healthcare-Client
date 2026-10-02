@@ -48,7 +48,8 @@ export const PatientRegistrationZodSchema = z
 //* Teletalk: 015
 //! Citycell: 011 (Defunct / Closed)
 //! Invalid / Unassigned: 010, 012
-//todo we need to confirm from [3-9]
+//* The regex above is `1[3-9]`: GP 013/017, Banglalink 014/019, Robi 018,
+//* Airtel 016, Teletalk 015. 010 and 012 are unassigned.
 
 //? Either +880, 880, 0
 

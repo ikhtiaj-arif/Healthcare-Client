@@ -2,14 +2,20 @@
 
 import { CalendarX2, Video } from "lucide-react";
 import Link from "next/link";
+import { PrescriptionForm } from "@/components/form/PrescriptionForm";
 import { CancelAppointmentDialog } from "@/components/modules/my-appointments/cancel-appointment-dialog";
 import { PayAppointmentButton } from "@/components/modules/my-appointments/pay-appointment-button";
+import { PrescriptionViewer } from "@/components/modules/prescriptions/prescription-viewer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { useGetAppointment } from "@/hooks";
+import { toast } from "@/components/ui/toast";
+import { useGetAppointment, useGetMe, useUpdateAppointmentStatus } from "@/hooks";
+import type { AppointmentStatus } from "@/types";
+import { getApiErrorMessage } from "@/utils";
 
 function formatDateTime(value?: string | null) {
   if (!value) {
@@ -48,6 +54,8 @@ export function AppointmentDetail({
   /** Provided when hosted in the sheet; a standalone view falls back to a link. */
   onClose?: () => void;
 }) {
+  const { data: me } = useGetMe();
+  const role = me?.data?.role;
   const {
     data: appointment,
     isPending,
@@ -148,7 +156,7 @@ export function AppointmentDetail({
                     <StatusBadge status={appointment.payment.status} />
                     {appointment.payment.paidAt ? (
                       <span className="text-xs text-muted-foreground">
-                        Paid {formatDateTime(appointment.payment.paidAt)}
+                        Paid {appointment.payment.paidAt}
                       </span>
                     ) : null}
                     {appointment.payment.refundAmount ? (
@@ -156,7 +164,7 @@ export function AppointmentDetail({
                         Refunded {appointment.payment.refundAmount}{" "}
                         {appointment.payment.currency}
                         {appointment.payment.refundedAt
-                          ? ` on ${formatDateTime(appointment.payment.refundedAt)}`
+                          ? ` on ${appointment.payment.refundedAt}`
                           : null}
                       </span>
                     ) : null}
@@ -198,11 +206,87 @@ export function AppointmentDetail({
             Join meeting
           </Button>
         ) : null}
-        <PayAppointmentButton appointment={appointment} />
-        {canCancel ? (
+        {role === "PATIENT" ? (
+          <PayAppointmentButton appointment={appointment} />
+        ) : null}
+        {canCancel && role !== "DOCTOR" ? (
           <CancelAppointmentDialog appointment={appointment} />
         ) : null}
+        {role === "DOCTOR" ? (
+          <AppointmentStatusAction
+            appointmentId={appointment.id}
+            status={appointment.status}
+          />
+        ) : null}
       </div>
+
+      {appointment.status === "COMPLETED" ? (
+        role === "DOCTOR" && !appointment.prescriptionUrl ? (
+          <PrescriptionForm appointmentId={appointment.id} />
+        ) : (
+          <PrescriptionViewer appointmentId={appointment.id} />
+        )
+      ) : null}
     </div>
+  );
+}
+
+function AppointmentStatusAction({
+  appointmentId,
+  status,
+}: {
+  appointmentId: string;
+  status: AppointmentStatus;
+}) {
+  const { mutateAsync, isPending } = useUpdateAppointmentStatus();
+  const next =
+    status === "CONFIRMED"
+      ? "ONGOING"
+      : status === "ONGOING"
+        ? "COMPLETED"
+        : null;
+
+  if (!next) {
+    return null;
+  }
+
+  const advance = async () => {
+    try {
+      await toast.promise(
+        mutateAsync({ appointmentId, status: next }),
+        {
+          loading: {
+            title: "Updating status",
+            description:
+              next === "ONGOING"
+                ? "Moving this visit to ongoing."
+                : "Marking this visit completed.",
+          },
+          success: {
+            title: "Status updated",
+            description:
+              next === "ONGOING"
+                ? "The visit is now ongoing."
+                : "The visit is completed. You can write a prescription.",
+          },
+          error: (err) => ({
+            title: "Could not update status",
+            description: getApiErrorMessage(
+              err,
+              "The visit may already have moved, or it belongs to another doctor.",
+            ),
+          }),
+        },
+      );
+    } catch {
+      // toast.promise has already surfaced the message.
+    }
+  };
+
+  return (
+    <Button onClick={advance} disabled={isPending}>
+      {isPending ? <Spinner /> : null}
+      {next === "ONGOING" ? "Mark ongoing" : "Mark completed"}
+    </Button>
   );
 }

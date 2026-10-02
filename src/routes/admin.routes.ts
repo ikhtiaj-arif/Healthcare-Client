@@ -3,7 +3,6 @@ const prefix = "/admin";
 export const adminRoutes = [
   {
     title: "Management",
-    url: "#",
     items: [
       {
         title: "Overview",
@@ -13,20 +12,26 @@ export const adminRoutes = [
         title: "Doctor Approval",
         url: `${prefix}/approve-doctor`,
       },
+      {
+        title: "Appointments",
+        url: `${prefix}/appointments`,
+      },
+      {
+        title: "Payments",
+        url: `${prefix}/payments`,
+      },
+      {
+        title: "Schedules",
+        url: `${prefix}/schedules`,
+      },
     ],
   },
   {
-    title: "App Settings",
-    url: "#",
+    title: "Account",
     items: [
       {
-        title: "Routing",
-        url: "#",
-      },
-      {
-        title: "Data Fetching",
-        url: "#",
-        isActive: true,
+        title: "Profile",
+        url: `${prefix}/profile`,
       },
     ],
   },

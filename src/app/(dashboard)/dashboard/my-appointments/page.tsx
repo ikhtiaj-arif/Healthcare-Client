@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import AppointmentList from "@/components/modules/my-appointments/appointment-list";
+import { AppointmentDetailSheet } from "@/components/modules/my-appointments/appointment-detail-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const page = () => {
   return (
@@ -10,12 +12,17 @@ const page = () => {
         description="Every consultation you have booked, with its payment and current status."
       />
 
-      {/* AppointmentList reads the status tab, page and sort from the query
+      {/* Both components read the status tab, page and sort from the query
           string, and also the bKash return params. Under output: "export" that
           opts this route into client rendering, so it needs a boundary or the
-          build fails. */}
-      <Suspense fallback={null}>
+          build fails.
+
+          The sheet must be mounted here as well as the list: AppointmentList
+          pushes `?appointment=<id>` on click, but nothing read that param, so
+          every row looked inert. */}
+      <Suspense fallback={<Skeleton className="h-[32rem] w-full" />}>
         <AppointmentList />
+        <AppointmentDetailSheet />
       </Suspense>
     </div>
   );

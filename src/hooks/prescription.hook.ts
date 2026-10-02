@@ -16,8 +16,9 @@ export const PRESCRIPTIONS_QUERY_KEY = ["prescriptions"] as const;
  * appointment lists and any open detail sheet now show it. Invalidate that family
  * or the patient keeps seeing "no prescription" until a hard refresh.
  *
- * Does **not** invalidate this file's own key: the server has no prescription
- * entity to fetch, and the response carries no medicines to cache.
+ * Also drops any cached 404 on this key. `useGetPrescription` uses `retry: 0`,
+ * so a "not written yet" response would stay on screen after a successful write
+ * until the query was invalidated.
  */
 export function useCreatePrescription() {
   const queryClient = useQueryClient();
@@ -26,6 +27,7 @@ export function useCreatePrescription() {
     mutationFn: createPrescription,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: APPOINTMENTS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: PRESCRIPTIONS_QUERY_KEY });
     },
   });
 }
