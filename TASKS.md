@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 70 / 112 complete
+**Progress:** 73 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -282,21 +282,20 @@ Routes: `GET /prescription/:appointmentId`
 
 ## Section D — Analytics dashboards
 
-All three dashboards are currently `<div>AdminDashboardPage</div>` / `<div>DoctorDashboardPage</div>`
-/ a links-only page.
+Patient, doctor, and admin overviews render the analytics cards below.
 
 ### D1 — Patient
-- [ ] `PatientAnalyticsCards` — 6 keys. Note `upcomingAppointments` counts **CONFIRMED only**;
+- [x] `PatientAnalyticsCards` — 6 keys. Note `upcomingAppointments` counts **CONFIRMED only**;
   there is no `pendingAppointments` key.
 Routes: `GET /analytics/patient-analytics`
 
 ### D2 — Doctor
-- [ ] `DoctorAnalyticsCards` — 9 keys. `totalDoctorEarnings` is already **net of refunds**, so it
+- [x] `DoctorAnalyticsCards` — 9 keys. `totalDoctorEarnings` is already **net of refunds**, so it
   is not gross revenue. No `draftSchedules` or `pendingAppointments` key exists.
 Routes: `GET /analytics/doctor-analytics`
 
 ### D3 — Admin
-- [ ] `AdminAnalyticsCards` — 10 keys
+- [x] `AdminAnalyticsCards` — 10 keys
 Routes: `GET /analytics/admin-analytics`
 
 ---
