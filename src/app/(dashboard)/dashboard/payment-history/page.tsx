@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { PaymentDetailSheet } from "@/components/modules/payments/payment-detail-sheet";
 import PaymentList from "@/components/modules/payments/payment-list";
 import { PageHeader } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const page = () => {
   return (
@@ -14,7 +15,7 @@ const page = () => {
       {/* Both components read the query string (page, sort, and the ?payment id
           the detail sheet opens on), which under output: "export" opts this route
           into client rendering and so needs a boundary. */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<Skeleton className="h-[32rem] w-full" />}>
         <PaymentList />
         <PaymentDetailSheet />
       </Suspense>

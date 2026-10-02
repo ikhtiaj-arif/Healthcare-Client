@@ -1,5 +1,5 @@
 "use client";
-import { Eye, Inbox, SearchX } from "lucide-react";
+import { Eye, Inbox, SearchX, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyTableRow } from "@/components/ui/empty-state";
@@ -43,6 +43,7 @@ function getInitialsClassName(name: string) {
 export function DoctorApprovalTable({
   applications,
   isPending = false,
+  isError = false,
   sortBy,
   sortOrder,
   onSortChange,
@@ -51,6 +52,7 @@ export function DoctorApprovalTable({
 }: {
   applications: DoctorApplication[];
   isPending: boolean;
+  isError?: boolean;
   sortBy?: DoctorSortField;
   sortOrder?: "asc" | "desc";
   onSortChange?: (field: DoctorSortField, order: "asc" | "desc") => void;
@@ -118,7 +120,18 @@ export function DoctorApprovalTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {isPending ? (
+          {/* Order matters: `isError` before `isPending`, because once react-query
+              has exhausted its retries `isPending` is false while `data` is still
+              undefined — falling through to the empty-state branch would tell the
+              admin "No applications here yet." about a 500. */}
+          {isError ? (
+            <EmptyTableRow
+              colSpan={8}
+              icon={TriangleAlert}
+              title="Could not load applications"
+              description="Something went wrong fetching the doctor list. This is not the same as having no applications — reload to try again."
+            />
+          ) : isPending ? (
             <DoctorApprovalTableLoading />
           ) : applications.length === 0 ? (
             <EmptyTableRow

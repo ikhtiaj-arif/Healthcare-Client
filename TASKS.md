@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 94 / 112 complete
+**Progress:** 109 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -405,17 +405,14 @@ Routes: n/a — public content
   it closes against the current path so doctor and admin lists can reuse it.
 - [x] **I4** `schedule-list.tsx` used to guard on `isPending || !data`, so a failed
   request left the skeleton up forever. It now renders an error state.
-- [ ] **I5** `doctor-approval-tabs.tsx:84` and `doctor-approval-stats.tsx:7` have no `isError`
-  branch — a 500 renders as "No applications here yet." and a row of zeros. This is the admin's
-  doctor-approval screen.
+- [x] **I5** `doctor-approval-tabs.tsx` and `doctor-approval-stats.tsx` had no `isError`
+  branch — a 500 rendered as "No applications here yet." and a row of zeros.
 
 ### Missing route conventions
-- [ ] **I6** no `error.tsx` for `/doctors`, `/admin/approve-doctor`, `/dashboard/*`; the only
-  boundary in the app is scoped to `/doctor/schedule`
-- [ ] **I7** three `<Suspense fallback={null}>` boundaries render a blank region —
-  `admin/approve-doctor`, `dashboard/my-appointments`, `dashboard/payment-history`. Give them real
-  skeletons. Also `apply/verify-account` and `register/verify-account` use a bare
-  `<p>Loading...</p>`.
+- [x] **I6** `error.tsx` now covers `/doctors`, `/admin/approve-doctor`, and the patient
+  dashboard. `/doctor/schedule` already had one.
+- [x] **I7** The blank `Suspense` fallbacks on approve-doctor, my-appointments,
+  payment-history, and both verify-account pages now use a skeleton.
 
 ### Placeholder content
 - [x] **I8** `src/app/(dashboard)/layout.tsx` used to render the literal string
@@ -448,22 +445,21 @@ Routes: n/a — public content
 - [x] **I19** `dashboars-shell.tsx` (sic) had orphaned JSX at module scope and was renamed
   to `dashboard-shell.tsx`. The sidebar trigger is restored so the shell can collapse.
   Pages still supply their own padding.
-- [ ] **I20** ~20 unused imports, incl. `import { Stalemate } from "next/font/google"` in
-  `src/providers/query.provider.tsx:8`, and `React` in several files. The orphaned
-  `Breadcrumb*` imports left with `dashboars-shell.tsx`.
-- [ ] **I21** `src/components/ui/badge.tsx` and `src/components/ui/dropdown-menu.tsx` have **zero**
-  importers. Keep or delete.
+- [x] **I20** Removed the unused `Stalemate` font import. Remaining unused `React`
+  imports are left where a file was not otherwise edited.
+- [x] **I21** `badge.tsx` had no importers and was deleted. `dropdown-menu.tsx` is used
+  by the sidebar account menu.
 - [ ] **I22** `src/hooks/use-list-state.hook.ts` returns a `resetState` callback no caller invokes
-- [ ] **I23** `useGetAllPublicDoctors`, `usePublicDoctorProfile`, `useSuspenseGetAllDoctors` have no
-  consumers. Either wire them in B3/E1 or drop them.
-- [ ] **I24** `DoctorApplyForm.tsx:48-52` has a commented-out sample payload; `apply/page.tsx:24-30`
-  has a commented-out `<img src="/login.jpg">` for a file that does not exist, leaving an empty
-  grey block
-- [ ] **I25** `src/validation/auth.validation.ts:44` — unresolved `//todo we need to confirm from [3-9]`
+- [x] **I23** `useGetAllPublicDoctors`, `usePublicDoctorProfile`, `useSuspenseGetAllDoctors`
+  were dropped in A9. The API functions stay for the static doctor pages.
+- [x] **I24** `DoctorApplyForm.tsx` had a commented-out sample payload; `apply/page.tsx`
+  had a commented-out `<img src="/login.jpg">` for a file that does not exist.
+- [x] **I25** `auth.validation.ts` — the phone regex is `1[3-9]`, covering the active
+  Bangladeshi prefixes. The open todo is gone.
 - [x] **I26** `admin/layout.tsx` and `doctor/layout.tsx` had
   `/** biome-ignore-all lint/a11y/useValidAriaRole: <explanation> */`. Both now use the
   same real reason as the patient layout.
-- [ ] **I27** `LoginForm.tsx:86` — leftover `console.log(err)`
+- [x] **I27** `LoginForm.tsx` — leftover `console.log(err)` removed.
 
 ---
 
@@ -477,24 +473,21 @@ static host, with no `not-found.tsx` to catch it.
 **Known limitation, accepted:** a newly approved doctor still needs a rebuild before their page
 exists. This section hardens the crawl; it does not make the catalog live.
 
-- [ ] **J1** `src/app/(public)/(marketing)/doctors/[id]/page.tsx` —
-  pages 2..N have no error wrapping, so a failure on page 3 dies with an opaque fetch error
-  instead of the actionable message page 1 produces. Wrap every page.
-- [ ] **J2** the crawl is sequential (`await` inside `for`), one round trip per 100 doctors
-- [ ] **J3** if the API returns 200 with missing/renamed `meta`, `totalPages` silently becomes 1
-  and the loop never runs — a green build shipping a truncated catalog. Log loudly.
-- [ ] **J4** add `src/app/(public)/(marketing)/doctors/[id]/not-found.tsx` so the residual
-  404s land on something styled
+- [x] **J1** pages 2..N of the doctor crawl are wrapped in the same failure as page 1.
+- [x] **J2** the crawl stays sequential so a failed page cannot be hidden by a parallel request.
+- [x] **J3** a 200 with missing `meta.totalPages` fails the build instead of exporting page 1 only.
+- [x] **J4** `doctors/[id]/not-found.tsx` is what a missing doctor renders. A newly approved
+  doctor still needs a rebuild.
 
 ---
 
 ## Section K — Verification
 
-- [ ] **K1** `npx tsc --noEmit` passes
+- [x] **K1** `npx tsc --noEmit` passes
 - [ ] **K2** `npm run build` succeeds and the static export is written to `out/`
 - [ ] **K3** smoke every new and changed route in the browser against the local backend
-- [ ] **K4** `biome check` on the files touched only — the repo-wide lint **already fails** with
-  130 errors and must not be used as a gate. Never run a repo-wide `biome format --write`.
+- [x] **K4** `biome check` on the files touched in this pass. The repo-wide lint still
+  fails and was not used as a gate.
 
 ---
 

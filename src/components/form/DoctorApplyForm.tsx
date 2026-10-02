@@ -45,24 +45,6 @@ import {
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 
-//* Data signature
-// {
-//   "user": {
-//     "name": "Dr. Sarah Jenkins",
-//     "email": "dr.sarah.jenkins@example.com"
-//   },
-//   "doctor": {
-//     "address": "123 Medical Plaza, Suite 400, New York, NY",
-//     "specialization": "Cardiology",
-//     "licenseNumber": "MED-2026-98765",
-//     "qualifications": "MD, FACC - Harvard Medical School",
-//     "experienceYears": 12,
-//     "bio": "Dedicated cardiologist with over a decade of experience specializing in non-invasive cardiovascular imaging and preventative heart care.",
-//     "consultationFee": 150,
-//     "contactNumber": "+1-555-0199"
-//   }
-// }
-
 type DoctorApplicationFormValues = z.input<typeof doctorApplicationSchema>;
 
 const defaultValues: DoctorApplicationFormValues = {

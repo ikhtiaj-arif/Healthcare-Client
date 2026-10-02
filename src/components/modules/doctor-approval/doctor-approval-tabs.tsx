@@ -81,7 +81,7 @@ export function DoctorApprovalTabs() {
     ...(debouncedSearch ? { searchTerm: debouncedSearch } : {}),
   };
 
-  const { data, isPending } = useGetAllDoctors(params);
+  const { data, isPending, isError } = useGetAllDoctors(params);
 
   const applications = (data?.data ?? []).map(mapDoctorToApplication);
   const meta = data?.meta;
@@ -103,6 +103,7 @@ export function DoctorApprovalTabs() {
       <DoctorApprovalTable
         applications={applications}
         isPending={isPending}
+        isError={isError}
         onSortChange={(sortBy, sortOrder) => setState({ sortBy, sortOrder })}
         sortBy={state.sortBy}
         sortOrder={state.sortOrder}

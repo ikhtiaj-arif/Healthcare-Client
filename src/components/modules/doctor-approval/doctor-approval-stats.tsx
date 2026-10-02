@@ -4,7 +4,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetDoctorCounts } from "@/hooks";
 
 export function DoctorApprovalStats() {
-  const { data, isPending } = useGetDoctorCounts();
+  const { data, isPending, isError } = useGetDoctorCounts();
+
+  if (isError) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Application counts could not be loaded.
+      </p>
+    );
+  }
 
   const counts = data?.byStatus;
 

@@ -51,10 +51,8 @@ Express backend that must be running on port 5000 for anything beyond the market
   `FRONTEND_URL` CORS allowlist has to match.
 - Envelope is `{success, statusCode, message, data, meta?}` (`src/types/api-response.type.ts`).
   Lists take `?page&limit` (server default limit is 10) and return
-  `meta: {page, limit, total, totalPages}`. **The pagination shape is not uniform**:
-  `/doctor/all-doctors` nests `{data: {data, meta}}` while the schedule endpoints send `meta` as a
-  sibling of `data`. `src/api/schedule.api.ts` documents this with a local `PaginatedApiResponse<T>`;
-  follow whichever shape the endpoint you call actually returns.
+  `meta: {page, limit, total, totalPages}` as a sibling of `data`. Every list uses that
+  shape, including `/doctor/all-doctors`.
 - Read error text with `getApiErrorMessage(error, fallback)` from `@/utils`. ofetch's
   `error.message` is a technical `[POST] "http://...": 409 Conflict` string, and the backend masks
   real messages as `"Internal Server Error"` outside development.
@@ -66,7 +64,7 @@ Express backend that must be running on port 5000 for anything beyond the market
   `SCHEDULES_QUERY_KEY = ["schedules"]` (`src/hooks/schedule.hook.ts`). Invalidate by prefix, not by
   the full key. Logout removes `["user"]` in `src/components/layouts/public/Header.tsx`.
 - Pick the fetching hook deliberately: `useSuspenseQuery` throws to the segment's `error.tsx`
-  (only `src/app/(dashboard)/doctor/schedule/error.tsx` exists today), whereas `useQuery` with
+  whereas `useQuery` with
   `placeholderData: keepPreviousData` keeps the table on screen across page/tab changes instead of
   dropping to a skeleton. `useGetMe` sets `retry: false`.
 - Forms use `@tanstack/react-form` `useForm` with the zod schema from

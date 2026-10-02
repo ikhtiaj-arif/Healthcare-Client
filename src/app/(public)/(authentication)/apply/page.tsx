@@ -1,7 +1,6 @@
+import Link from "next/link";
 import Logo from "@/assets/svg/Logo";
 import DoctorApplyForm from "@/components/form/DoctorApplyForm";
-
-import Link from "next/link";
 
 export default function ApplyPage() {
   return (
@@ -21,12 +20,11 @@ export default function ApplyPage() {
           </div>
         </div>
       </div>
-      <div className="relative hidden bg-muted lg:block">
-        {/* <img
-          src="/login.jpg"
-          alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        /> */}
+      <div className="relative hidden bg-muted p-10 lg:flex lg:items-end">
+        <p className="text-sm text-muted-foreground">
+          Apply with your license and resume. An admin reviews it before
+          patients can book you.
+        </p>
       </div>
     </div>
   );
