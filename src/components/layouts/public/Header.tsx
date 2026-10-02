@@ -12,7 +12,8 @@ const Header = () => {
   const routes = [
     { name: "Home", path: "/" },
     { name: "Doctors", path: "/doctors" },
-    { name: "About", path: "/about" },
+    { name: "Today", path: "/doctors/available-today" },
+    { name: "About", path: "/about-us" },
     { name: "Contact", path: "/contact" },
   ];
 
