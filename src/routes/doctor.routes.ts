@@ -14,4 +14,13 @@ export const doctorRoutes = [
       },
     ],
   },
+  {
+    title: "Account",
+    items: [
+      {
+        title: "Profile",
+        url: `${prefix}/profile`,
+      },
+    ],
+  },
 ];

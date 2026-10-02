@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 52 / 112 complete
+**Progress:** 58 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -245,18 +245,21 @@ Distinct OTP failures, both 400: "Invalid OTP" (missing/expired Redis key) vs
 the second means *retype the same one*.
 
 ### B3 — Profile page, all roles
-- [ ] `src/app/(dashboard)/dashboard/profile/page.tsx`, `.../doctor/profile/page.tsx`,
-  `.../admin/profile/page.tsx` — or one shared component mounted by each
-- [ ] read-only fields from `GET /auth/me`; editable fields are limited to what the backend accepts
-- [ ] `ProfileImageUpload` — preview, `multipart/form-data`, field `profileImage`
-- [ ] resolve the existing `/dashboard/profile` sidebar link
+- [x] `src/app/(dashboard)/dashboard/profile/page.tsx`, `.../doctor/profile/page.tsx`,
+  `.../admin/profile/page.tsx` — one shared `ProfileView` mounted by each
+- [x] read-only fields from `GET /auth/me`; editable fields are limited to what the backend accepts
+- [x] `ProfileImageUpload` — preview, `multipart/form-data`, field `profileImage`
+- [x] resolve the existing `/dashboard/profile` sidebar link, and add the same link
+  under doctor and admin
 Routes: `PATCH /user/profile-image`, `GET /auth/me`
 
 ### B4 — Doctor profile edit
-- [ ] `src/components/form/DoctorProfileForm.tsx` — `address` (min 5), `bio` (max 1000),
+- [x] `src/components/form/DoctorProfileForm.tsx` — `address` (min 5), `bio` (max 1000),
   `consultationFee` (**JSON number**), `contactNumber` (min 5)
-- [ ] invalidate `["user"]` after save so `/auth/me` reflects it
+- [x] invalidate `["user"]` after save so `/auth/me` reflects it (`useUpdateMyDoctorProfile`)
 Routes: `PATCH /doctor/update-my-profile`
+`GET /auth/me` now selects `address`, `bio`, `consultationFee`, and `contactNumber`
+so the form can be prefilled. The public doctor profile still omits the private fields.
 
 ---
 
