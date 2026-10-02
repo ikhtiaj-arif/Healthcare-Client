@@ -55,7 +55,7 @@ function PublicDoctorGrid({
   }
 
   return (
-    <div className="mt-6 space-y-6">
+    <div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {doctors.map((doctor) => (
           <Card key={doctor.id}>
@@ -101,7 +101,7 @@ function PublicDoctorGrid({
 
 function PublicDoctorListLoading() {
   return (
-    <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {[1, 2, 3, 4, 5, 6].map((item) => (
         <div key={item} className="space-y-2 rounded-xl border p-4">
           <Skeleton className="h-5 w-2/3" />
