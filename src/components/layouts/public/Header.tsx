@@ -6,7 +6,7 @@ import { USER_QUERY_KEY, useGetMe, useLogout } from "@/hooks";
 import { UserRole } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const routes = [
@@ -24,20 +24,22 @@ const Header = () => {
   };
 
   const { data, isLoading } = useGetMe();
-  const { mutate: logout } = useLogout();
+  const { mutate: logout, isPending } = useLogout();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const role: UserRole | undefined = data?.data?.role;
 
   const handleLogout = () => {
     logout(undefined, {
       onSuccess: () => {
+        queryClient.removeQueries({ queryKey: USER_QUERY_KEY });
         toast.add({
           title: "Logout Successful",
           description: "You have been logged out successfully.",
           type: "success",
         });
-        queryClient.removeQueries({ queryKey: USER_QUERY_KEY });
+        router.push("/login");
       },
       onError: () => {
         toast.add({
@@ -65,13 +67,26 @@ const Header = () => {
           {role && <Link href={dashboardRoutes[role]}>Dashboard</Link>}
         </div>
         <div>
-          {!isLoading && !data ? (
-            <Button variant="outline" size="xs">
-              <Link href="/login">Login</Link>
+          {isLoading ? (
+            <Button variant="outline" size="xs" disabled>
+              Login
+            </Button>
+          ) : data ? (
+            <Button
+              onClick={handleLogout}
+              variant="destructive"
+              size="xs"
+              disabled={isPending}
+            >
+              Logout
             </Button>
           ) : (
-            <Button onClick={handleLogout} variant="destructive" size="xs">
-              <Link href="/login">Logout</Link>
+            <Button
+              variant="outline"
+              size="xs"
+              render={<Link href="/login" />}
+            >
+              Login
             </Button>
           )}
         </div>

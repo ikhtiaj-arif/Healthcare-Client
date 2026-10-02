@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/a11y/useValidAriaRole: `role` is DashboardShell's own UserRole prop, not an ARIA role; doctor and admin layouts carry the same suppression. */
 import type { ReactNode } from "react";
 import RoleGuard from "@/components/auth/role-guard";
-import DashboardShell from "@/components/dashboard/dashboars-shell";
+import DashboardShell from "@/components/dashboard/dashboard-shell";
 
 /**
  * Patient area, renamed from /patient to /dashboard.

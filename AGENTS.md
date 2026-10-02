@@ -103,8 +103,8 @@ Express backend that must be running on port 5000 for anything beyond the market
 ## Known issues — pre-existing, don't fix unless asked
 
 - `npm run lint` fails repo-wide (see Commands).
-- `src/components/dashboard/dashboars-shell.tsx` has JSX at module scope after the component, plus
-  unused imports.
+- `src/components/form/LoginForm.tsx` still has a leftover `console.log` in the login
+  error path.
 - `src/hooks/debounce.hook.ts` ignores its `delay` argument (hardcodes 500ms in the effect) and
   carries a blanket `biome-ignore-all` on line 1.
 
