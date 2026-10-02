@@ -24,6 +24,7 @@ import { toast } from "@/components/ui/toast";
 import { useDeleteSchedule, usePublishSchedule } from "@/hooks";
 import type { Schedule } from "@/types";
 import { getApiErrorMessage } from "@/utils";
+import { ScheduleEditDialog } from "./schedule-edit-dialog";
 import ScheduleDetailSheet from "./schedule-detail-sheet";
 
 interface Props {
@@ -42,6 +43,7 @@ export default function ScheduleTable({ schedules }: Props) {
   const { mutate: remove } = useDeleteSchedule();
 
   const [viewing, setViewing] = useState<Schedule | null>(null);
+  const [editing, setEditing] = useState<Schedule | null>(null);
   const [deleting, setDeleting] = useState<Schedule | null>(null);
   // Tracked per row so one schedule's action doesn't disable every other row.
   const [publishingId, setPublishingId] = useState<string | null>(null);
@@ -154,6 +156,13 @@ export default function ScheduleTable({ schedules }: Props) {
                     >
                       View
                     </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditing(schedule)}
+                    >
+                      Edit
+                    </Button>
                     {schedule.status === "DRAFT" && (
                       <Button
                         size="sm"
@@ -179,6 +188,12 @@ export default function ScheduleTable({ schedules }: Props) {
           </TableBody>
         </Table>
       </div>
+
+      <ScheduleEditDialog
+        key={editing?.id ?? "closed"}
+        schedule={editing}
+        onClose={() => setEditing(null)}
+      />
 
       {viewing && (
         <ScheduleDetailSheet

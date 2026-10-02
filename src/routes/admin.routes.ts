@@ -12,6 +12,18 @@ export const adminRoutes = [
         title: "Doctor Approval",
         url: `${prefix}/approve-doctor`,
       },
+      {
+        title: "Appointments",
+        url: `${prefix}/appointments`,
+      },
+      {
+        title: "Payments",
+        url: `${prefix}/payments`,
+      },
+      {
+        title: "Schedules",
+        url: `${prefix}/schedules`,
+      },
     ],
   },
   {

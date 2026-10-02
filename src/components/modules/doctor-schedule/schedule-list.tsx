@@ -1,6 +1,8 @@
 "use client";
 
+import { CalendarX2 } from "lucide-react";
 import { type Dispatch, type SetStateAction, useState } from "react";
+import { EmptyState } from "@/components/ui/empty-state";
 import TablePagination from "@/components/ui/table-pagination";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMySchedules } from "@/hooks";
@@ -28,11 +30,25 @@ function ScheduleResults({
   page: number;
   setPage: Dispatch<SetStateAction<number>>;
 }) {
-  const { data, isPending } = useMySchedules(params);
+  const { data, isPending, isError } = useMySchedules(params);
+
+  if (isError) {
+    return (
+      <EmptyState
+        icon={CalendarX2}
+        title="Could not load your schedules"
+        description="Please try again. If it keeps failing, your session may have expired."
+      />
+    );
+  }
 
   // Only the first load has no data. Later page and tab changes are served from
   // `keepPreviousData`, so they render straight away instead of blanking out.
-  if (isPending || !data) {
+  if (isPending && !data) {
+    return <ScheduleListLoading />;
+  }
+
+  if (!data) {
     return <ScheduleListLoading />;
   }
 

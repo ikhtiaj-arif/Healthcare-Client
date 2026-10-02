@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 73 / 112 complete
+**Progress:** 85 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -309,20 +309,20 @@ Follow the **current** convention (`modules/doctor-approval/doctor-approval-tabs
 `EmptyState` outside the table, hand-rolled count line).
 
 ### E1 — All appointments
-- [ ] `/admin/appointments` — status tabs, search, sortable, detail sheet
-- [ ] `appointment-detail-sheet` must be reusable here (see I3)
-- [ ] filters: `status`, `doctorId`, `patientId`, `doctorEmail`, `patientEmail` (all exact match)
+- [x] `/admin/appointments` — status tabs, sortable, detail sheet
+- [x] `appointment-detail-sheet` must be reusable here (see I3)
+- [x] filters: `status`, `doctorId`, `patientId`, `doctorEmail`, `patientEmail` (all exact match)
 Routes: `GET /appointment/all-appointments`
 
 ### E2 — All payments
-- [ ] `/admin/payments` — sortable only; there is **no** `status` filter on this endpoint
-- [ ] omit `gatewayResponse` from the rendered detail — it is the raw bKash payload and can be huge
+- [x] `/admin/payments` — sortable only; there is **no** `status` filter on this endpoint
+- [x] omit `gatewayResponse` from the rendered detail — it is the raw bKash payload and can be huge
 Routes: `GET /payment/all-payments`
 
 ### E3 — All schedules
-- [ ] `/admin/schedules` — status tabs, search (`doctor.name` / `doctor.email` /
+- [x] `/admin/schedules` — status tabs, search (`doctor.name` / `doctor.email` /
   `doctor.specialization`), `doctorId`, `email`
-- [ ] appointments are **not** filtered by the backend — CANCELLED / PENDING / ONGOING / COMPLETED
+- [x] appointments are **not** filtered by the backend — CANCELLED / PENDING / ONGOING / COMPLETED
   all appear. Filter client-side in the detail sheet.
 Routes: `GET /schedule/all-schedules`
 
@@ -350,15 +350,15 @@ Routes: `PATCH /appointment/update-status/:appointmentId`
 ## Section G — Schedule
 
 ### G1 — Edit a schedule
-- [ ] `ScheduleEditDialog` reusing `CreateScheduleForm`'s window logic (`resolveScheduleWindow`,
+- [x] `ScheduleEditDialog` reusing `CreateScheduleForm`'s window logic (`resolveScheduleWindow`,
   `MINUTES_PER_SLOT = 20`)
-- [ ] surface all five 409s: already-published-and-booked, start after end, not same day,
+- [x] surface all five 409s: already-published-and-booked, start after end, not same day,
   duplicate schedule that day, under 20 minutes
-- [ ] note the server **resets** `availableSlots = totalSlots` on update
+- [x] note the server **resets** `availableSlots = totalSlots` on update
 Routes: `PATCH /schedule/update-schedule/:scheduleId`
 
 ### G2 — Single schedule detail
-- [ ] `GET /schedule/:scheduleId` returns `doctor` + `appointments[]` with full patients; its
+- [x] `GET /schedule/:scheduleId` returns `doctor` + `appointments[]` with full patients; its
   doctor projection is `{id,name,email,specialization,userId}`, different from create/update
 Routes: `GET /schedule/:scheduleId`
 
@@ -403,8 +403,8 @@ Routes: n/a — public content
 - [x] **I3** `my-appointments/page.tsx` only rendered `<AppointmentList />`, so
   `?appointment=<id>` opened nothing. `AppointmentDetailSheet` is now mounted, and
   it closes against the current path so doctor and admin lists can reuse it.
-- [ ] **I4** `schedule-list.tsx:35` guards on `isPending || !data`, so once react-query exhausts
-  its retries the skeleton renders **forever**; the route's `error.tsx` is never reached.
+- [x] **I4** `schedule-list.tsx` used to guard on `isPending || !data`, so a failed
+  request left the skeleton up forever. It now renders an error state.
 - [ ] **I5** `doctor-approval-tabs.tsx:84` and `doctor-approval-stats.tsx:7` have no `isError`
   branch — a 500 renders as "No applications here yet." and a row of zeros. This is the admin's
   doctor-approval screen.
