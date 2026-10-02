@@ -12,6 +12,10 @@ export const doctorRoutes = [
         title: "Schedules",
         url: `${prefix}/schedule`,
       },
+      {
+        title: "Appointments",
+        url: `${prefix}/appointments`,
+      },
     ],
   },
   {

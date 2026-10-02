@@ -7,7 +7,7 @@ Everything the `healthcare-frontend` app is still missing, in execution order.
 **Source of truth:** backend is `Healthcare-Backend` (Express 5 + Prisma 7, 43 module routes).
 Frontend is `healthcare-frontend` (Next 16 static export, `output: "export"`).
 
-**Progress:** 58 / 112 complete
+**Progress:** 70 / 112 complete
 
 > This file lives inside `healthcare-frontend/` deliberately, so it is committed
 > and pushed alongside the work it tracks. It used to sit at the workspace root,
@@ -266,16 +266,16 @@ so the form can be prefilled. The public doctor profile still omits the private 
 ## Section C — Prescriptions
 
 ### C1 — Doctor writes a prescription
-- [ ] `PrescriptionForm` — dynamic `medicines[]` rows (add / remove), findings textarea
-- [ ] mount on a **COMPLETED** appointment only; the backend 400s otherwise
-- [ ] `409 A Prescription Already Exists` must surface, not silently retry
+- [x] `PrescriptionForm` — dynamic `medicines[]` rows (add / remove), findings textarea
+- [x] mount on a **COMPLETED** appointment only; the backend 400s otherwise
+- [x] `409 A Prescription Already Exists` must surface, not silently retry
 Routes: `POST /prescription/create-prescription`
 
 ### C2 — Prescription viewer
-- [ ] `PrescriptionSheet` — renders `data.prescription` (a Cloudinary PDF) in an iframe /
-  `<object>`, with an open-in-new-tab fallback
-- [ ] mount for patient, doctor and admin from the appointment detail sheet
-- [ ] `404` renders an empty state ("no prescription written yet"), not an error
+- [x] `PrescriptionViewer` — renders `data.prescription` (a Cloudinary PDF) in an iframe,
+  with an open-in-new-tab fallback
+- [x] mount for patient, doctor and admin from the appointment detail sheet
+- [x] `404` renders an empty state ("no prescription written yet"), not an error
 Routes: `GET /prescription/:appointmentId`
 
 ---
@@ -332,18 +332,18 @@ Routes: `GET /schedule/all-schedules`
 ## Section F — Doctor appointments
 
 ### F1 — List
-- [ ] `/doctor/appointments` — status tabs, sortable. No `searchTerm`, `doctorId`, `patientId` or
+- [x] `/doctor/appointments` — status tabs, sortable. No `searchTerm`, `doctorId`, `patientId` or
   date filter exists on this endpoint.
-- [ ] items carry the patient **with** `contactNumber`, and no doctor relation
+- [x] items carry the patient **with** `contactNumber`, and no doctor relation
 Routes: `GET /appointment/doctor-appointments`
 
 ### F2 — Status action
-- [ ] encode the transition rules client-side: `CONFIRMED → ONGOING` only,
+- [x] encode the transition rules client-side: `CONFIRMED → ONGOING` only,
   `ONGOING → COMPLETED` only
-- [ ] the two 400s that fire on a skipped step:
+- [x] the two 400s that fire on a skipped step:
   `"Confirmed appointment must be ongoing at first"` and
-  `"Ongoing appointment must be completed"`
-- [ ] 403 `Appointment is already completed` / `already Cancelled`; 404 for another doctor's row
+  `"Ongoing appointment must be completed"` — surfaced through `getApiErrorMessage`
+- [x] 403 `Appointment is already completed` / `already Cancelled`; 404 for another doctor's row
 Routes: `PATCH /appointment/update-status/:appointmentId`
 
 ---
@@ -401,10 +401,9 @@ Routes: n/a — public content
   "Try again" button does not throw. No change made.
 
 ### Broken features
-- [ ] **I3** `src/app/(dashboard)/dashboard/my-appointments/page.tsx:17-19` renders only
-  `<AppointmentList />`. `appointment-list.tsx:141` pushes `?appointment=<id>` and **nothing opens**
-  — `AppointmentDetailSheet` is never mounted. Correct pattern is next door at
-  `payment-history/page.tsx:17-20`.
+- [x] **I3** `my-appointments/page.tsx` only rendered `<AppointmentList />`, so
+  `?appointment=<id>` opened nothing. `AppointmentDetailSheet` is now mounted, and
+  it closes against the current path so doctor and admin lists can reuse it.
 - [ ] **I4** `schedule-list.tsx:35` guards on `isPending || !data`, so once react-query exhausts
   its retries the skeleton renders **forever**; the route's `error.tsx` is never reached.
 - [ ] **I5** `doctor-approval-tabs.tsx:84` and `doctor-approval-stats.tsx:7` have no `isError`
