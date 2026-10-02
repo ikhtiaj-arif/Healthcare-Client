@@ -53,13 +53,13 @@ const Header = () => {
   };
 
   return (
-    <header className="w-full h-16  border-b">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 h-full ">
-        <h1 className="text-lg flex items-center  font-bold">
+    <header className="w-full border-b">
+      <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
+        <h1 className="flex items-center text-lg font-bold">
           <Logo />
           HealthCare Service
         </h1>
-        <div className="flex gap-4 items-center justify-center">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
           {routes.map((route) => (
             <Link href={route.path} key={route.path}>
               {route.name}
