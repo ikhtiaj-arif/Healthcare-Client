@@ -37,7 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       )}
     >
       <Providers>
-        <body className="min-h-full flex flex-col">
+        <body className="flex min-h-svh flex-col">
           {children} <Toaster />
         </body>
       </Providers>
