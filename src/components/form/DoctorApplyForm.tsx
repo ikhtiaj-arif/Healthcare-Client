@@ -133,7 +133,7 @@ export default function DoctorApplyForm() {
     <div className="flex flex-col gap-6 ">
       <div className="flex flex-col gap-2 text-center">
         <h1 className="text-2xl font-bold tracking-tight">
-          Apply to join PH Healthcare
+          Apply to join HealthCare Service
         </h1>
         <p className="text-sm text-muted-foreground">
           Tell us about your practice. We&apos;ll email you a 6-digit code to
