@@ -8,7 +8,9 @@ const GoogleAuthProvider = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
   }
   return (
-    <GoogleOAuthProvider clientId={clientId}>{children}</GoogleOAuthProvider>
+    <GoogleOAuthProvider clientId={clientId} locale="en">
+      {children}
+    </GoogleOAuthProvider>
   );
 };
 

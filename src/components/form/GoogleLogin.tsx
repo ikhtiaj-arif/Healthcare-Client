@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FieldSeparator } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
 import { useGoogleOAuth } from "@/hooks";
+import { getApiErrorMessage } from "@/utils";
 
 export function GoogleLoginButton({
   redirectTo = "/",
@@ -38,8 +39,10 @@ export function GoogleLoginButton({
         onError: (err) => {
           toast.add({
             title: "Google OAuth Failed",
-            description:
-              err.message || "Something went wrong, please try again.",
+            description: getApiErrorMessage(
+              err,
+              "Something went wrong, please try again.",
+            ),
             type: "error",
           });
         },

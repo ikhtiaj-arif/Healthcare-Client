@@ -1,13 +1,10 @@
 import z from "zod";
 
 /**
- * The password policy, in one place.
- *
- * Registration, login and password reset all enforce the same four
- * requirements, and until now the rule was pasted verbatim into each schema. A
- * shared object means the policy cannot drift between the three forms — and the
- * backend enforces it identically, so this mirrors `auth.validation.ts` on the
- * server rather than inventing a looser client rule.
+ * The password policy, in one place for routes that *choose* a password
+ * (register, reset). Login only checks that a password was typed — the server
+ * already accepts any non-empty string so seeded / older accounts are not
+ * locked out by client-side complexity rules.
  */
 const PasswordSchema = z
   .string()
@@ -60,7 +57,7 @@ export const PatientVerifyEmailZodSchema = z.object({
 
 export const LoginSchema = z.object({
   email: z.email(),
-  password: PasswordSchema,
+  password: z.string().min(1, "Password is required"),
 });
 
 /** Mirrors the server's `ForgotPasswordZodSchema` — email only. */

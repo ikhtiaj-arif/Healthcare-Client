@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useLogin } from "@/hooks";
+import { getApiErrorMessage } from "@/utils";
 import { LoginSchema } from "@/validation";
 import { Spinner } from "../ui/spinner";
 import { toast } from "../ui/toast";
@@ -84,7 +85,7 @@ export function LoginForm({
         onError: (err) => {
           toast.add({
             title: "Login Failed",
-            description: err.message || "An error occurred",
+            description: getApiErrorMessage(err, "Invalid email or password"),
             type: "error",
           });
         },
